@@ -1,8 +1,11 @@
 import React from 'react';
 import { View, Text, ScrollView, Image } from 'react-native';
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useAppTheme } from '@/components/theme/ThemeContext';
 
 export default function ReportsScreen() {
+    const { theme, accentColor } = useAppTheme();
+    const accent = accentColor || (theme === 'dark' ? '#4EA1FF' : '#1d74f5');
     return (
         <View className="flex-1 bg-white">
              <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
@@ -10,7 +13,7 @@ export default function ReportsScreen() {
                <View className="px-4 pt-6 pb-2 flex-row items-center justify-between">
                  <Text className="text-xl font-semibold text-slate-900">Billing</Text>
                  <View className="flex-row items-center">
-                   <IconMC name="bell-outline" size={22} color="#1d74f5" style={{ marginRight: 12 }} />
+                   <IconMC name="bell-outline" size={22} color={accent} style={{ marginRight: 12 }} />
                    <Image source={{ uri: 'https://i.pravatar.cc/50' }} className="w-8 h-8 rounded-full" />
                  </View>
                </View>

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { View, Text, ScrollView, Image, Pressable, TextInput } from "react-native";
 import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
+import { useAppTheme } from "@/components/theme/ThemeContext";
 
 type Plan = {
   name: string;
@@ -14,6 +15,8 @@ type Plan = {
 
 export default function MembershipPlansListScreen() {
   const navigation = useNavigation<any>();
+  const { theme, accentColor } = useAppTheme();
+  const accent = accentColor || (theme === 'dark' ? '#4EA1FF' : '#1d74f5');
   const [selected, setSelected] = useState(0);
   const [query, setQuery] = useState("");
 
@@ -53,32 +56,33 @@ export default function MembershipPlansListScreen() {
   );
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
         {/* Top Bar */}
         <View className="px-4 pt-6 pb-2 flex-row items-center justify-between">
-          <Text className="text-xl font-semibold text-slate-900">Gym Plans</Text>
+          <Text className="text-xl font-semibold text-slate-900 dark:text-gray-100">Gym Plans</Text>
           <View className="flex-row items-center">
-            <IconMC name="bell-outline" size={22} color="#1d74f5" style={{ marginRight: 12 }} />
-            <View className="w-8 h-8 rounded-full bg-slate-200" />
+            <IconMC name="bell-outline" size={22} color={accent} style={{ marginRight: 12 }} />
+            <View className="w-8 h-8 rounded-full bg-slate-200 dark:bg-gray-700" />
           </View>
         </View>
 
         {/* Search + Add New */}
         <View className="px-4 mt-1 flex-row gap-3 items-center">
-          <View className="flex-1 flex-row items-center border border-slate-200 rounded-xl px-3 py-2 bg-white">
-            <IconMC name="magnify" size={20} color="#64748b" />
+          <View className="flex-1 flex-row items-center border border-slate-200 dark:border-gray-800 rounded-xl px-3 py-2 bg-white dark:bg-slate-900">
+            <IconMC name="magnify" size={20} color={theme === 'dark' ? '#94a3b8' : '#64748b'} />
             <TextInput
               value={query}
               onChangeText={setQuery}
               placeholder="Search plans..."
-              placeholderTextColor="#94a3b8"
-              className="ml-2 flex-1 text-slate-900"
+              placeholderTextColor={theme === 'dark' ? '#9ca3af' : '#94a3b8'}
+              className="ml-2 flex-1 text-slate-900 dark:text-gray-100"
             />
           </View>
           <Pressable
             onPress={() => navigation.navigate("MembershipPlansScreen")}
-            className="bg-[#1d74f5] rounded-xl px-4 py-3 flex-row items-center"
+            className="rounded-xl px-4 py-3 flex-row items-center"
+            style={{ backgroundColor: accent }}
           >
             <IconMC name="file-plus-outline" size={18} color="#fff" style={{ marginRight: 6 }} />
             <Text className="text-white font-medium">Add New Plan</Text>
@@ -93,8 +97,8 @@ export default function MembershipPlansListScreen() {
               <Pressable
                 key={p.name}
                 onPress={() => setSelected(idx)}
-                className={`flex-row items-center p-4 mb-3 rounded-xl bg-white ${
-                  active ? "border-2 border-[#1d74f5]" : "border border-slate-200"
+                className={`flex-row items-center p-4 mb-3 rounded-xl bg-white dark:bg-slate-900 ${
+                  active ? "border-2" : "border border-slate-200 dark:border-gray-800"
                 }`}
                 style={{
                   shadowColor: "#000",
@@ -102,32 +106,33 @@ export default function MembershipPlansListScreen() {
                   shadowOpacity: 0.06,
                   shadowRadius: 4,
                   elevation: 1,
+                  ...(active ? { borderColor: accent } : null),
                 }}
               >
                 <Image source={{ uri: p.image }} className="w-16 h-16 rounded-lg mr-3" />
                 <View className="flex-1">
                   <View className="flex-row items-center justify-between">
-                    <Text className="text-slate-900 font-semibold">{p.name}</Text>
+                    <Text className="text-slate-900 dark:text-gray-100 font-semibold">{p.name}</Text>
                     {p.popular && (
                       <View className="bg-orange-500 px-2 py-1 rounded-full">
                         <Text className="text-white text-[10px]">Popular</Text>
                       </View>
                     )}
                   </View>
-                  <Text className="text-xs text-slate-600 mt-1" numberOfLines={2}>
+                  <Text className="text-xs text-slate-600 dark:text-gray-300 mt-1" numberOfLines={2}>
                     {p.desc}
                   </Text>
                   <View className="flex-row items-center mt-2">
-                    <Text className="text-[#1d74f5] font-semibold mr-3">${p.price.toFixed(2)}</Text>
-                    <Text className="text-slate-500 text-xs">{p.durationMonths} months</Text>
+                    <Text className="font-semibold mr-3" style={{ color: accent }}>${p.price.toFixed(2)}</Text>
+                    <Text className="text-slate-500 dark:text-gray-400 text-xs">{p.durationMonths} months</Text>
                   </View>
                 </View>
                 <View className="ml-3 items-center">
-                  <Pressable className="p-2 rounded-full bg-slate-100 mb-2">
-                    <IconMC name="pencil-outline" size={18} color="#475569" />
+                  <Pressable className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 mb-2">
+                    <IconMC name="pencil-outline" size={18} color={theme === 'dark' ? '#cbd5e1' : '#475569'} />
                   </Pressable>
-                  <Pressable className="p-2 rounded-full bg-slate-100">
-                    <IconMC name="trash-can-outline" size={18} color="#ef4444" />
+                  <Pressable className="p-2 rounded-full bg-slate-100 dark:bg-slate-800">
+                    <IconMC name="trash-can-outline" size={18} color={theme === 'dark' ? '#f87171' : '#ef4444'} />
                   </Pressable>
                 </View>
               </Pressable>
@@ -136,7 +141,7 @@ export default function MembershipPlansListScreen() {
         </View>
       </ScrollView>
 
-    
+      
     </View>
   );
 }
