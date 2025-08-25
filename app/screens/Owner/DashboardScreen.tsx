@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, ScrollView, Image, Pressable } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAppTheme } from '@/components/theme/ThemeContext';
 
 export default function OwnerDashboardScreen() {
   const { theme, accentColor } = useAppTheme();
   const accent = accentColor || (theme === 'dark' ? '#4EA1FF' : '#1d74f5');
+  const navigation = useNavigation<any>();
   const locations = [
     { name: 'Fitness Hub - Downtown', address: '123 Main St, Anytown', status: 'Active' },
     { name: 'Powerhouse Gym - Uptown', address: '456 Oak Ave, Big City', status: 'Inactive' },
@@ -60,15 +62,15 @@ export default function OwnerDashboardScreen() {
 
         {/* Action Buttons */}
         <View className="px-4 pt-4 gap-3">
-          <Pressable className="rounded-xl py-3 px-4 flex-row items-center justify-center" style={{ backgroundColor: accent }} onPress={() => {}}>
+          <Pressable className="rounded-xl py-3 px-4 flex-row items-center justify-center" style={{ backgroundColor: accent }} onPress={() => navigation.navigate('Gyms')}>
             <IconMC name="home-plus-outline" size={18} color="#fff" style={{ marginRight: 8 }} />
             <Text className="text-white font-medium">Add Gym/Branch</Text>
           </Pressable>
-          <Pressable className="rounded-xl py-3 px-4 flex-row items-center justify-center" style={{ backgroundColor: accent }} onPress={() => {}}>
+          <Pressable className="rounded-xl py-3 px-4 flex-row items-center justify-center" style={{ backgroundColor: accent }} onPress={() => navigation.navigate('Staff', { screen: 'StaffRegistrationScreen' })}>
             <IconMC name="account-plus-outline" size={18} color="#fff" style={{ marginRight: 8 }} />
             <Text className="text-white font-medium">Add Staff</Text>
           </Pressable>
-          <Pressable className="rounded-xl py-3 px-4 flex-row items-center justify-center" style={{ backgroundColor: accent }} onPress={() => {}}>
+          <Pressable className="rounded-xl py-3 px-4 flex-row items-center justify-center" style={{ backgroundColor: accent }} onPress={() => navigation.navigate('Members', { screen: 'MemberRegistrationScreen' })}>
             <IconMC name="account-plus-outline" size={18} color="#fff" style={{ marginRight: 8 }} />
             <Text className="text-white font-medium">Register Member</Text>
           </Pressable>
@@ -91,8 +93,15 @@ export default function OwnerDashboardScreen() {
                     <Text className="text-xs text-slate-600 dark:text-gray-400">{loc.address}</Text>
                   </View>
                 </View>
-                <View className={`px-2 py-1 rounded-full ${loc.status === 'Active' ? 'bg-green-500' : 'bg-red-500'}`}> 
-                  <Text className="text-white text-xs">{loc.status}</Text>
+                <View className="items-end">
+                  <View className={`self-end px-2 py-1 rounded-full ${loc.status === 'Active' ? 'bg-green-500' : 'bg-red-500'}`}> 
+                    <Text className="text-white text-xs">{loc.status}</Text>
+                  </View>
+                  <Pressable onPress={() => navigation.navigate('DetailsDrawer', { type: 'location', item: loc, title: 'Location Details' })}
+                            className="mt-2 self-end rounded-lg py-1.5 px-2"
+                            style={{ backgroundColor: accent }}>
+                    <Text className="text-white text-[11px]">View Details</Text>
+                  </Pressable>
                 </View>
               </View>
             ))}

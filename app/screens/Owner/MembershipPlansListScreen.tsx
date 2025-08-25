@@ -122,9 +122,18 @@ export default function MembershipPlansListScreen() {
                   <Text className="text-xs text-slate-600 dark:text-gray-300 mt-1" numberOfLines={2}>
                     {p.desc}
                   </Text>
-                  <View className="flex-row items-center mt-2">
-                    <Text className="font-semibold mr-3" style={{ color: accent }}>${p.price.toFixed(2)}</Text>
-                    <Text className="text-slate-500 dark:text-gray-400 text-xs">{p.durationMonths} months</Text>
+                  <View className="flex-row items-center justify-between mt-2">
+                    <View className="flex-row items-center">
+                      <Text className="font-semibold mr-3" style={{ color: accent }}>${p.price.toFixed(2)}</Text>
+                      <Text className="text-slate-500 dark:text-gray-400 text-xs">{p.durationMonths} months</Text>
+                    </View>
+                    <Pressable
+                      onPress={() => navigation.navigate('DetailsDrawer', { type: 'plan', item: p, title: 'Plan Details' })}
+                      className="rounded-lg px-2 py-1"
+                      style={{ backgroundColor: accent }}
+                    >
+                      <Text className="text-white text-[11px]">View Details</Text>
+                    </Pressable>
                   </View>
                 </View>
                 <View className="ml-3 items-center">

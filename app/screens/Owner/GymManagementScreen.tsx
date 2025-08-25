@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { View, Text, ScrollView, Image, Pressable } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAppTheme } from '@/components/theme/ThemeContext';
 
@@ -8,6 +9,7 @@ import { useAppTheme } from '@/components/theme/ThemeContext';
 export default function GymManagementScreen() {
   const { theme, accentColor } = useAppTheme();
   const accent = accentColor || (theme === 'dark' ? '#4EA1FF' : '#1d74f5');
+  const navigation = useNavigation<any>();
   const gyms = [
     {
       name: 'Fitness Hub - Downtown',
@@ -85,7 +87,7 @@ export default function GymManagementScreen() {
                     <Text className="text-white text-[10px]">{g.status}</Text>
                   </View>
                 </View>
-                <Pressable onPress={() => {}} className="self-start rounded-lg py-2 px-3 mt-3 flex-row items-center" style={{ backgroundColor: accent }}>
+                <Pressable onPress={() => navigation.navigate('DetailsDrawer', { type: 'gym', item: g, title: 'Gym Details' })} className="self-start rounded-lg py-2 px-3 mt-3 flex-row items-center" style={{ backgroundColor: accent }}>
                   <IconMC name="eye-outline" size={16} color="#fff" style={{ marginRight: 6 }} />
                   <Text className="text-white text-sm">View Details</Text>
                 </Pressable>
@@ -108,10 +110,10 @@ export default function GymManagementScreen() {
             const active = item.key === 'Gyms';
             const inactive = theme === 'dark' ? '#9ca3af' : '#64748b';
             return (
-              <View key={item.key} className="items-center flex-1">
+              <Pressable key={item.key} className="items-center flex-1" onPress={() => navigation.navigate(item.key)}>
                 <IconMC name={item.icon as any} size={22} color={active ? accent : inactive} />
                 <Text className={`text-xs mt-1 ${active ? '' : 'text-slate-500 dark:text-gray-400'}`} style={active ? { color: accent } : undefined}>{item.key}</Text>
-              </View>
+              </Pressable>
             );
           })}
         </View>
