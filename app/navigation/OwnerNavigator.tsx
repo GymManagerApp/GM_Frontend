@@ -17,7 +17,7 @@ import StaffRegistrationScreen from "../screens/Owner/StaffRegistrationScreen";
 import ProfileScreen from "../screens/Shared/ProfileScreen";
 import NotificationsScreen from "../screens/Shared/NotificationsScreen";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import CustomTabBar from "@/components/CustomBottomNavBar";
+import CustomTabBar from "@/components/Navigation/CustomBottomNavBar";
 
 // Stack for nested flows (like add/edit forms)
 const Stack = createStackNavigator();
