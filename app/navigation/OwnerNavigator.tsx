@@ -14,6 +14,8 @@ import ReportsScreen from "../screens/Owner/ReportsScreen";
 import MemberListScreen from "../screens/Owner/MemberListScreen";
 import StaffListScreen from "../screens/Owner/StaffListScreen";
 import StaffRegistrationScreen from "../screens/Owner/StaffRegistrationScreen";
+import ProfileScreen from "../screens/Shared/ProfileScreen";
+import NotificationsScreen from "../screens/Shared/NotificationsScreen";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import CustomTabBar from "@/components/CustomBottomNavBar";
 
@@ -27,6 +29,7 @@ function GymStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Gyms" component={GymManagementScreen} />
       <Stack.Screen name="Reports" component={ReportsScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
       {/* Example: Add/Edit Gym */}
       {/* <Stack.Screen name="AddGym" component={AddGymScreen} /> */}
     </Stack.Navigator>
@@ -39,6 +42,7 @@ function MemberStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MemberList" component={MemberListScreen} />
       <Stack.Screen name="MemberRegistrationScreen" component={MemberRegistrationScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
     </Stack.Navigator>
   );
 }
@@ -49,6 +53,7 @@ function StaffStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="StaffList" component={StaffListScreen} />
       <Stack.Screen name="StaffRegistrationScreen" component={StaffRegistrationScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
     </Stack.Navigator>
   );
 }
@@ -59,6 +64,17 @@ function PlansStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MembershipPlansList" component={MembershipPlansListScreen} />
       <Stack.Screen name="MembershipPlansScreen" component={MembershipPlansScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
+    </Stack.Navigator>
+  );
+}
+
+// Profile stack to support notifications navigation from Profile tab
+function ProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ProfileHome" component={ProfileScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
     </Stack.Navigator>
   );
 }
@@ -90,6 +106,7 @@ export default function OwnerNavigator() {
       <Tab.Screen name="Members" component={MemberStack} />
       <Tab.Screen name="Plans" component={PlansStack} />
       <Tab.Screen name="Reports" component={ReportsScreen} />
+      <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
   );
 }

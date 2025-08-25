@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, ScrollView, TextInput, Pressable } from "react-native";
 import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
+import { useAppTheme } from "@/components/theme/ThemeContext";
 
 export default function StaffRegistrationScreen() {
+  const { theme, accentColor } = useAppTheme();
+  const accent = accentColor || (theme === "dark" ? "#4EA1FF" : "#1d74f5");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -35,7 +38,7 @@ export default function StaffRegistrationScreen() {
         <View className="px-4 pt-6 pb-2 flex-row items-center justify-between">
           <Text className="text-xl font-semibold text-slate-900">Register Staff</Text>
           <View className="flex-row items-center">
-            <IconMC name="bell-outline" size={22} color="#1d74f5" style={{ marginRight: 12 }} />
+            <IconMC name="bell-outline" size={22} color={accent} style={{ marginRight: 12 }} />
             <View className="w-8 h-8 rounded-full bg-slate-200" />
           </View>
         </View>
@@ -106,7 +109,7 @@ export default function StaffRegistrationScreen() {
             </View>
 
             <View className="mt-2 flex-row gap-3">
-              <Pressable className="flex-1 bg-[#1d74f5] rounded-xl py-3 items-center justify-center">
+              <Pressable className="flex-1 rounded-xl py-3 items-center justify-center" style={{ backgroundColor: accent }}>
                 <Text className="text-white font-semibold">Register Staff</Text>
               </Pressable>
               <Pressable className="flex-1 bg-white border border-slate-200 rounded-xl py-3 items-center justify-center">

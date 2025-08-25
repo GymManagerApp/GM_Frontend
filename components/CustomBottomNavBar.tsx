@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
-import { useColorScheme } from "./useColorScheme.web";
+import { useAppTheme } from "@/components/theme/ThemeContext";
 
 // Example ThemeContext (replace with your own context or prop)
 
@@ -11,8 +11,7 @@ export default function CustomTabBar({
   descriptors,
   navigation,
 }: BottomTabBarProps) {
-  const theme = useColorScheme(); // 'light' or 'dark'
-  // const theme = "dark";
+  const { theme, accentColor } = useAppTheme(); // 'light' | 'dark'
 
   // Define colors for light and dark modes
   const colors = {
@@ -26,17 +25,18 @@ export default function CustomTabBar({
       textInactive: "#94a3b8",
     },
     dark: {
-      background: "#121212",
-      borderTop: "#272727",
+      background: "#0f172a", // slate-900
+      borderTop: "#1f2937", // gray-800
       shadowColor: "#000",
-      iconActive: "#22c55e", // green-500
+      iconActive: "#4EA1FF", // default vibrant blue
       iconInactive: "#888",
-      textActive: "#22c55e",
-      textInactive: "#94a3b8",
+      textActive: "#4EA1FF",
+      textInactive: "#9ca3af",
     },
   };
-
-  const mode = theme === "dark" ? colors.dark : colors.light;
+  const accent = accentColor || (theme === "dark" ? "#4EA1FF" : "#1d74f5");
+  const baseMode = theme === "dark" ? colors.dark : colors.light;
+  const mode = { ...baseMode, iconActive: accent, textActive: accent } as typeof baseMode;
 
   return (
     <View
