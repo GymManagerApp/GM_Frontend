@@ -101,6 +101,9 @@ export default function CustomTabBar({
           case "Plans":
             iconName = "book-outline";
             break;
+          case "Enquiry":
+            iconName = "email-outline";
+            break;
           case "Payments":
             iconName = "cash-multiple";
             break;

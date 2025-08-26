@@ -68,7 +68,7 @@ export default function MembershipPlansListScreen() {
       <View className="flex-1 bg-white dark:bg-slate-950">
         <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
           {/* Search + Add New */}
-          <View className="px-4 mt-1 flex-row gap-3 items-center">
+          <View className="w-full px-4 mt-1 flex flex-col gap-3 items-start">
             <View className="flex-1 flex-row items-center border border-slate-200 dark:border-gray-800 rounded-xl px-3 py-2 bg-white dark:bg-slate-900">
               <IconMC
                 name="magnify"
@@ -85,7 +85,7 @@ export default function MembershipPlansListScreen() {
             </View>
             <Pressable
               onPress={() => navigation.navigate("MembershipPlansScreen")}
-              className="rounded-xl px-4 py-3 flex-row items-center"
+              className="rounded-xl px-4 py-3 flex-row items-center justify-center w-full"
               style={{ backgroundColor: accent }}
             >
               <IconMC

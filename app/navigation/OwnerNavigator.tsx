@@ -20,6 +20,9 @@ import NotificationsScreen from "../screens/Shared/NotificationsScreen";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import DetailsDrawer from "../screens/Shared/DetailsDrawer";
 import CustomTabBar from "@/components/Navigation/CustomBottomNavBar";
+import GymRegistrationScreen from "../screens/Owner/GymRegistrationScreen";
+import EnquiryListScreen from "../screens/Owner/EnquiryListScreen";
+import EnquiryFormScreen from "../screens/Owner/EnquiryFormScreen";
 
 // Stack for nested flows (like add/edit forms)
 const Stack = createStackNavigator();
@@ -39,8 +42,11 @@ function DashboardStack() {
 
 function GymStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Gyms" component={GymManagementScreen} />
+      <Stack.Screen name="GymRegistrationScreen" component={GymRegistrationScreen} />
+      <Stack.Screen name="EnquiryList" component={EnquiryListScreen} />
+      <Stack.Screen name="EnquiryForm" component={EnquiryFormScreen} />
       <Stack.Screen name="Reports" component={ReportsScreen} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
       {/* Example: Add/Edit Gym */}
@@ -92,6 +98,17 @@ function ProfileStack() {
   );
 }
 
+// Enquiry stack (list + form)
+function EnquiryStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="EnquiryList" component={EnquiryListScreen} />
+      <Stack.Screen name="EnquiryForm" component={EnquiryFormScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
+    </Stack.Navigator>
+  );
+}
+
 function MainTabs() {
   return (
     <Tab.Navigator
@@ -117,6 +134,7 @@ function MainTabs() {
       <Tab.Screen name="Staff" component={StaffStack} />
       <Tab.Screen name="Members" component={MemberStack} />
       <Tab.Screen name="Plans" component={PlansStack} />
+      <Tab.Screen name="Enquiry" component={EnquiryStack} />
       <Tab.Screen name="Reports" component={ReportsScreen} />
       <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>

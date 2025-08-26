@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, Image, Pressable } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAppTheme } from "@/components/theme/ThemeContext";
 import ScreenWrapper from "@/components/Navigation/ScreenWrapperTopNav";
@@ -9,7 +9,10 @@ export default function GymManagementScreen() {
   const { theme, accentColor } = useAppTheme();
   const accent = accentColor || (theme === "dark" ? "#4EA1FF" : "#1d74f5");
   const navigation = useNavigation<any>();
-  const gyms = [
+  const route = useRoute<any>();
+  const [gyms, setGyms] = useState<
+    { name: string; address: string; email: string; note: string; status: "Active" | "Maintenance" | "Closed" }[]
+  >([
     {
       name: "Fitness Hub - Downtown",
       address: "123 Main St, Anytown",
@@ -31,7 +34,7 @@ export default function GymManagementScreen() {
       note: "Temporarily closed for renovation",
       status: "Closed" as const,
     },
-  ];
+  ]);
 
   const badgeColor = (status: "Active" | "Maintenance" | "Closed") => {
     switch (status) {
@@ -46,6 +49,18 @@ export default function GymManagementScreen() {
     }
   };
 
+  // If we navigated back from GymRegistrationScreen with a newGym, append it
+  useEffect(() => {
+    const newGym = route?.params?.newGym;
+    if (newGym) {
+      setGyms((prev) => [newGym, ...prev]);
+      // Clear param so it doesn't re-add on re-render
+      try {
+        navigation.setParams({ newGym: undefined });
+      } catch {}
+    }
+  }, [route?.params?.newGym]);
+
   return (
     <ScreenWrapper title="Gym Management" theme={theme}>
       <View className="flex-1 bg-white dark:bg-slate-950">
@@ -54,7 +69,7 @@ export default function GymManagementScreen() {
           <View className="flex-1">
             {/* Add New Button */}
             <Pressable
-              onPress={() => {}}
+              onPress={() => navigation.navigate("GymRegistrationScreen")}
               className="rounded-xl py-3 px-4 flex-row items-center justify-center mt-1"
               style={{ backgroundColor: accent }}
             >
