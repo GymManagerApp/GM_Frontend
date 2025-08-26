@@ -7,6 +7,7 @@ import ScreenWrapper from "@/components/Navigation/ScreenWrapperTopNav";
 export default function StaffRegistrationScreen() {
   const { theme, accentColor } = useAppTheme();
   const accent = accentColor || (theme === "dark" ? "#4EA1FF" : "#1d74f5");
+  const placeholderColor = theme === "dark" ? "#64748b" : "#94a3b8";
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -18,45 +19,73 @@ export default function StaffRegistrationScreen() {
 
   const Chip = ({ label }: { label: "Active" | "Pending" | "Inactive" }) => {
     const active = status === label;
-    const colors: Record<string, { bg: string; text: string; border: string }> =
+    const colors: Record<
+      string,
       {
-        Active: {
-          bg: "bg-emerald-50",
-          text: "text-emerald-700",
-          border: "border-emerald-200",
-        },
-        Pending: {
-          bg: "bg-amber-50",
-          text: "text-amber-700",
-          border: "border-amber-200",
-        },
-        Inactive: {
-          bg: "bg-rose-50",
-          text: "text-rose-700",
-          border: "border-rose-200",
-        },
-      };
+        bgLight: string;
+        bgDark: string;
+        textLight: string;
+        textDark: string;
+        borderLight: string;
+        borderDark: string;
+      }
+    > = {
+      Active: {
+        bgLight: "bg-emerald-50",
+        bgDark: "bg-emerald-900/20",
+        textLight: "text-emerald-700",
+        textDark: "text-emerald-300",
+        borderLight: "border-emerald-200",
+        borderDark: "border-emerald-700",
+      },
+      Pending: {
+        bgLight: "bg-amber-50",
+        bgDark: "bg-amber-900/20",
+        textLight: "text-amber-700",
+        textDark: "text-amber-300",
+        borderLight: "border-amber-200",
+        borderDark: "border-amber-700",
+      },
+      Inactive: {
+        bgLight: "bg-rose-50",
+        bgDark: "bg-rose-900/20",
+        textLight: "text-rose-700",
+        textDark: "text-rose-300",
+        borderLight: "border-rose-200",
+        borderDark: "border-rose-700",
+      },
+    };
     const c = colors[label];
     return (
       <Pressable
         onPress={() => setStatus(label)}
-        className={`px-3 py-2 rounded-full border ${c.border} ${
-          active ? c.bg : "bg-white"
+        className={`px-3 py-2 rounded-full border ${
+          theme === "dark" ? c.borderDark : c.borderLight
+        } ${
+          active
+            ? theme === "dark"
+              ? c.bgDark
+              : c.bgLight
+            : "bg-white dark:bg-slate-900"
         }`}
       >
-        <Text className={`text-xs ${c.text}`}>{label}</Text>
+        <Text
+          className={`text-xs ${theme === "dark" ? c.textDark : c.textLight}`}
+        >
+          {label}
+        </Text>
       </Pressable>
     );
   };
 
   return (
     <ScreenWrapper title="Add New Staff" theme={theme}>
-      <View className="flex-1">
+      <View className="flex-1 bg-white dark:bg-slate-900">
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
           {/* Form Card */}
           <View className="px-4 mt-2">
             <View
-              className="bg-white rounded-xl p-4"
+              className="bg-white dark:bg-slate-800 rounded-xl p-4"
               style={{
                 shadowColor: "#000",
                 shadowOffset: { width: 0, height: 1 },
@@ -65,61 +94,85 @@ export default function StaffRegistrationScreen() {
                 elevation: 1,
               }}
             >
-              <Text className="text-slate-700 text-sm mb-2">Staff Name</Text>
+              <Text className="text-slate-700 dark:text-slate-300 text-sm mb-2">
+                Staff Name
+              </Text>
               <TextInput
                 value={name}
                 onChangeText={setName}
                 placeholder="e.g., Imran Khan"
-                placeholderTextColor="#94a3b8"
-                className="border border-slate-200 rounded-lg px-3 py-3 text-slate-900 mb-4"
+                placeholderTextColor={placeholderColor}
+                className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-3 text-slate-900 dark:text-slate-100 mb-4"
               />
 
-              <Text className="text-slate-700 text-sm mb-2">Phone Number</Text>
+              <Text className="text-slate-700 dark:text-slate-300 text-sm mb-2">
+                Phone Number
+              </Text>
               <TextInput
                 value={phone}
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
                 placeholder="e.g., +91 98765 43210"
-                placeholderTextColor="#94a3b8"
-                className="border border-slate-200 rounded-lg px-3 py-3 text-slate-900 mb-4"
+                placeholderTextColor={placeholderColor}
+                className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-3 text-slate-900 dark:text-slate-100 mb-4"
               />
 
-              <Text className="text-slate-700 text-sm mb-2">Email</Text>
+              <Text className="text-slate-700 dark:text-slate-300 text-sm mb-2">
+                Email
+              </Text>
               <TextInput
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 placeholder="staff@gym.com"
-                placeholderTextColor="#94a3b8"
-                className="border border-slate-200 rounded-lg px-3 py-3 text-slate-900 mb-4"
+                placeholderTextColor={placeholderColor}
+                className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-3 text-slate-900 dark:text-slate-100 mb-4"
               />
 
               {/* Role select placeholder */}
-              <Text className="text-slate-700 text-sm mb-2">Role</Text>
-              <Pressable className="border border-slate-200 rounded-lg px-3 py-3 flex-row items-center justify-between mb-4">
+              <Text className="text-slate-700 dark:text-slate-300 text-sm mb-2">
+                Role
+              </Text>
+              <Pressable className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-3 flex-row items-center justify-between mb-4">
                 <Text
-                  className={`text-slate-900 ${role ? "" : "text-slate-400"}`}
+                  className={`${
+                    role
+                      ? "text-slate-900 dark:text-slate-100"
+                      : "text-slate-400 dark:text-slate-500"
+                  }`}
                 >
                   {role || "Select a role"}
                 </Text>
-                <IconMC name="chevron-down" size={18} color="#94a3b8" />
+                <IconMC
+                  name="chevron-down"
+                  size={18}
+                  color={theme === "dark" ? "#9ca3af" : "#94a3b8"}
+                />
               </Pressable>
 
               {/* Assign Gym placeholder */}
-              <Text className="text-slate-700 text-sm mb-2">
+              <Text className="text-slate-700 dark:text-slate-300 text-sm mb-2">
                 Assign Gym/Branch
               </Text>
-              <Pressable className="border border-slate-200 rounded-lg px-3 py-3 flex-row items-center justify-between mb-4">
+              <Pressable className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-3 flex-row items-center justify-between mb-4">
                 <Text
-                  className={`text-slate-900 ${gym ? "" : "text-slate-400"}`}
+                  className={`${
+                    gym
+                      ? "text-slate-900 dark:text-slate-100"
+                      : "text-slate-400 dark:text-slate-500"
+                  }`}
                 >
                   {gym || "Select a gym"}
                 </Text>
-                <IconMC name="chevron-down" size={18} color="#94a3b8" />
+                <IconMC
+                  name="chevron-down"
+                  size={18}
+                  color={theme === "dark" ? "#9ca3af" : "#94a3b8"}
+                />
               </Pressable>
 
               {/* Employment Status Chips */}
-              <Text className="text-slate-700 text-sm mb-2">
+              <Text className="text-slate-700 dark:text-slate-300 text-sm mb-2">
                 Employment Status
               </Text>
               <View className="flex-row gap-2 mb-2">
@@ -137,8 +190,10 @@ export default function StaffRegistrationScreen() {
                     Register Staff
                   </Text>
                 </Pressable>
-                <Pressable className="flex-1 bg-white border border-slate-200 rounded-xl py-3 items-center justify-center">
-                  <Text className="text-slate-700 font-semibold">Cancel</Text>
+                <Pressable className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 items-center justify-center">
+                  <Text className="text-slate-700 dark:text-slate-300 font-semibold">
+                    Cancel
+                  </Text>
                 </Pressable>
               </View>
             </View>
