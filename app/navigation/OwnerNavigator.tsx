@@ -18,8 +18,8 @@ import StaffRegistrationScreen from "../screens/Owner/StaffRegistrationScreen";
 import ProfileScreen from "../screens/Shared/ProfileScreen";
 import NotificationsScreen from "../screens/Shared/NotificationsScreen";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import CustomTabBar from "@/components/CustomBottomNavBar";
 import DetailsDrawer from "../screens/Shared/DetailsDrawer";
+import CustomTabBar from "@/components/Navigation/CustomBottomNavBar";
 
 // Stack for nested flows (like add/edit forms)
 const Stack = createStackNavigator();
@@ -28,6 +28,15 @@ const RootStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
 // Gym stack (list + add/edit details)
+function DashboardStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="DashboardHome" component={DashboardScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
+    </Stack.Navigator>
+  );
+}
+
 function GymStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -89,7 +98,7 @@ function MainTabs() {
       tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Dashboard" component={DashboardStack} />
 
       {/* Gym stack with No bottom navbar for Reports screen */}
       <Tab.Screen
