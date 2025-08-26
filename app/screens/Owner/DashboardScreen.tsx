@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, ScrollView, Image, Pressable } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAppTheme } from "@/components/theme/ThemeContext";
 import ScreenWrapper from "@/components/Navigation/ScreenWrapperTopNav";
@@ -7,6 +8,7 @@ import ScreenWrapper from "@/components/Navigation/ScreenWrapperTopNav";
 export default function OwnerDashboardScreen() {
   const { theme, accentColor } = useAppTheme();
   const accent = accentColor || (theme === "dark" ? "#4EA1FF" : "#1d74f5");
+  const navigation = useNavigation<any>();
   const locations = [
     {
       name: "Fitness Hub - Downtown",
@@ -163,7 +165,7 @@ export default function OwnerDashboardScreen() {
             <Pressable
               className="rounded-xl py-3 px-4 flex-row items-center justify-center"
               style={{ backgroundColor: accent }}
-              onPress={() => {}}
+              onPress={() => navigation.navigate('Gyms')}
             >
               <IconMC
                 name="home-plus-outline"
@@ -176,7 +178,7 @@ export default function OwnerDashboardScreen() {
             <Pressable
               className="rounded-xl py-3 px-4 flex-row items-center justify-center"
               style={{ backgroundColor: accent }}
-              onPress={() => {}}
+              onPress={() => navigation.navigate('Staff', { screen: 'StaffRegistrationScreen' })}
             >
               <IconMC
                 name="account-plus-outline"
@@ -189,7 +191,7 @@ export default function OwnerDashboardScreen() {
             <Pressable
               className="rounded-xl py-3 px-4 flex-row items-center justify-center"
               style={{ backgroundColor: accent }}
-              onPress={() => {}}
+              onPress={() => navigation.navigate('Members', { screen: 'MemberRegistrationScreen' })}
             >
               <IconMC
                 name="account-plus-outline"

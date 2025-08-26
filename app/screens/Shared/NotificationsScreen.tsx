@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAppTheme } from '@/components/theme/ThemeContext';
 
@@ -28,6 +29,7 @@ export default function NotificationsScreen() {
   const accent = accentColor || (theme === 'dark' ? '#4EA1FF' : '#1d74f5');
   const [active, setActive] = useState<Category>('All');
   const [items, setItems] = useState<NotificationItem[]>(initialData);
+  const navigation = useNavigation<any>();
 
   const data = useMemo(() => {
     if (active === 'All') return items;
@@ -96,7 +98,7 @@ export default function NotificationsScreen() {
                 <View className="flex-row items-center justify-between mt-2">
                   <Text className="text-[11px] text-slate-500 dark:text-gray-400">{n.time}</Text>
                   <View className="flex-row items-center">
-                    <Pressable className="mr-4">
+                    <Pressable className="mr-4" onPress={() => navigation.navigate('DetailsDrawer', { type: 'notification', item: n, title: 'Notification Details' })}>
                       <Text className="text-[12px]" style={{ color: accent }}>View Details</Text>
                     </Pressable>
                     {n.status === 'unread' && (

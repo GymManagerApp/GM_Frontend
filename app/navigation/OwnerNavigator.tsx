@@ -2,7 +2,8 @@
 
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createStackNavigator, CardStyleInterpolators } from "@react-navigation/stack";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 
 // Import Screens
 import DashboardScreen from "../screens/Owner/DashboardScreen";
@@ -17,13 +18,25 @@ import StaffRegistrationScreen from "../screens/Owner/StaffRegistrationScreen";
 import ProfileScreen from "../screens/Shared/ProfileScreen";
 import NotificationsScreen from "../screens/Shared/NotificationsScreen";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+import DetailsDrawer from "../screens/Shared/DetailsDrawer";
 import CustomTabBar from "@/components/Navigation/CustomBottomNavBar";
 
 // Stack for nested flows (like add/edit forms)
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+const RootStack = createStackNavigator();
+const Drawer = createDrawerNavigator();
 
 // Gym stack (list + add/edit details)
+function DashboardStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="DashboardHome" component={DashboardScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
+    </Stack.Navigator>
+  );
+}
+
 function GymStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -79,13 +92,13 @@ function ProfileStack() {
   );
 }
 
-export default function OwnerNavigator() {
+function MainTabs() {
   return (
     <Tab.Navigator
       tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Dashboard" component={DashboardStack} />
 
       {/* Gym stack with No bottom navbar for Reports screen */}
       <Tab.Screen
@@ -97,7 +110,6 @@ export default function OwnerNavigator() {
           return {
             tabBarStyle:
               routeName === "Reports" ? { display: "none" } : undefined,
-            // you can also hide header here if needed
             headerShown: false,
           };
         }}
@@ -108,5 +120,31 @@ export default function OwnerNavigator() {
       <Tab.Screen name="Reports" component={ReportsScreen} />
       <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
+  );
+}
+
+function RootWithModal() {
+  return (
+    <RootStack.Navigator screenOptions={{ headerShown: false }}>
+      <RootStack.Screen name="MainTabs" component={MainTabs} />
+      <RootStack.Screen
+        name="DetailsDrawer"
+        component={DetailsDrawer}
+        options={{
+          cardStyle: { backgroundColor: 'transparent' },
+          cardOverlayEnabled: true,
+          gestureEnabled: true,
+          cardStyleInterpolator: CardStyleInterpolators.forModalPresentationIOS,
+        }}
+      />
+    </RootStack.Navigator>
+  );
+}
+
+export default function OwnerNavigator() {
+  return (
+    <Drawer.Navigator screenOptions={{ headerShown: false }}>
+      <Drawer.Screen name="Root" component={RootWithModal} />
+    </Drawer.Navigator>
   );
 }

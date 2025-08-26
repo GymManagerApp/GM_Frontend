@@ -103,10 +103,17 @@ export default function StaffListScreen() {
                   <Text className="text-xs text-slate-600 dark:text-gray-300 mt-1">{s.role}</Text>
                   <Text className="text-xs text-slate-600 dark:text-gray-300 mt-0.5">{s.email}</Text>
                   <Text className="text-xs text-slate-600 dark:text-gray-300 mt-0.5">{s.phone}</Text>
-                  <View className="mt-2">
+                  <View className="mt-2 flex-row items-center">
                     <View className={`self-start px-2 py-1 rounded-full ${b.bg}`}> 
                       <Text className={`text-[10px] ${b.text}`}>{b.label}</Text>
                     </View>
+                    <Pressable
+                      onPress={() => navigation.navigate('DetailsDrawer', { type: 'member', item: { ...s, status: s.status, role: s.role }, title: 'Staff Details' })}
+                      className="ml-3 rounded-lg px-2 py-1"
+                      style={{ backgroundColor: accent }}
+                    >
+                      <Text className="text-white text-[11px]">View Details</Text>
+                    </Pressable>
                   </View>
                 </View>
                 <View className="ml-3 items-center">

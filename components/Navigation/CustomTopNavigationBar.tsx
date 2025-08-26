@@ -1,6 +1,6 @@
-import { Colors } from "@/constants/Colors";
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,13 +9,14 @@ import Animated, {
   SharedValue,
 } from "react-native-reanimated";
 import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
+import { useAppTheme } from "@/components/theme/ThemeContext";
 
 const NAVBAR_HEIGHT = 56;
 
 type Props = {
   title: string;
   scrollY: SharedValue<number>;
-  theme: "light" | "dark";
+  theme?: "light" | "dark"; // optional; defaults to ThemeContext
   onNotificationPress?: () => void;
   profileImageUri?: string;
 };
@@ -23,10 +24,14 @@ type Props = {
 export default function TopNavigationBar({
   title,
   scrollY,
-  theme,
+  theme: themeProp,
   onNotificationPress,
   profileImageUri,
 }: Props) {
+  const navigation = useNavigation<any>();
+  const { theme, accentColor } = useAppTheme();
+  const currentTheme = themeProp || theme;
+  const accent = accentColor || (currentTheme === 'dark' ? '#4EA1FF' : '#1d74f5');
   const previousScroll = useSharedValue(0);
   const translateYShared = useSharedValue(0);
 
@@ -55,9 +60,13 @@ export default function TopNavigationBar({
     transform: [{ translateY: translateYShared.value }],
   }));
 
-  const themes = Colors
-
-  const colors = themes[theme];
+  // Derive colors based on theme to avoid dependency on external Colors map
+  const colors = {
+    background: currentTheme === 'dark' ? '#0f172a' : '#ffffff',
+    text: currentTheme === 'dark' ? '#e5e7eb' : '#0f172a',
+    borderTop: currentTheme === 'dark' ? '#1f2937' : '#e2e8f0',
+    iconActive: accent,
+  };
 
   return (
     <Animated.View
@@ -73,7 +82,7 @@ export default function TopNavigationBar({
       <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
       <View style={styles.right}>
         <TouchableOpacity
-          onPress={onNotificationPress}
+          onPress={onNotificationPress || (() => navigation.navigate('Notifications'))}
           style={styles.iconButton}
           activeOpacity={0.7}
         >
