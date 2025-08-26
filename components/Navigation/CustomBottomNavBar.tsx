@@ -20,18 +20,18 @@ export default function CustomTabBar({
       borderTop: "#e2e8f0", // slate-200
       shadowColor: "#000",
       iconActive: "#1d74f5",
-      iconInactive: "#888",
+      iconInactive: "#000",
       textActive: "#1d74f5",
-      textInactive: "#94a3b8",
+      textInactive: "#000",
     },
     dark: {
       background: "#0f172a", // slate-900
       borderTop: "#1f2937", // gray-800
       shadowColor: "#000",
       iconActive: "#4EA1FF", // default vibrant blue
-      iconInactive: "#888",
+      iconInactive: "#fff",
       textActive: "#4EA1FF",
-      textInactive: "#9ca3af",
+      textInactive: "#fff",
     },
   };
   const accent = accentColor || (theme === "dark" ? "#4EA1FF" : "#1d74f5");
