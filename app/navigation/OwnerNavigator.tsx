@@ -116,27 +116,26 @@ function MainTabs() {
       screenOptions={{ headerShown: false }}
     >
       <Tab.Screen name="Dashboard" component={DashboardStack} />
+      <Tab.Screen name="Members" component={MemberStack} />
+      <Tab.Screen name="Plus" component={DashboardStack} />
+      <Tab.Screen name="Staff" component={StaffStack} />
+      <Tab.Screen name="Profile" component={ProfileStack} />
 
-      {/* Gym stack with No bottom navbar for Reports screen */}
+      {/* Hidden tabs (accessible via Quick Actions) */}
       <Tab.Screen
         name="Gyms"
         component={GymStack}
         options={({ route }) => {
           const routeName = getFocusedRouteNameFromRoute(route) ?? "Gyms";
-
           return {
-            tabBarStyle:
-              routeName === "Reports" ? { display: "none" } : undefined,
+            tabBarStyle: routeName === "Reports" ? { display: "none" } : undefined,
             headerShown: false,
           };
         }}
       />
-      <Tab.Screen name="Staff" component={StaffStack} />
-      <Tab.Screen name="Members" component={MemberStack} />
       <Tab.Screen name="Plans" component={PlansStack} />
       <Tab.Screen name="Enquiry" component={EnquiryStack} />
       <Tab.Screen name="Reports" component={ReportsScreen} />
-      <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
   );
 }

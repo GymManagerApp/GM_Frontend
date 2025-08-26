@@ -59,16 +59,34 @@ export default function CustomTabBar({
         justifyContent: "space-between",
       }}
     >
-      {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const isFocused = state.index === index;
+      {state.routes
+        .filter((r) => ["Dashboard", "Members", "Plus", "Staff", "Profile"].includes(r.name))
+        .map((route, index) => {
+          const { options } = descriptors[route.key];
+          const isFocused = state.index === state.routes.findIndex((r) => r.key === route.key);
 
-        const onPress = () => {
-          const event = navigation.emit({
-            type: "tabPress",
-            target: route.key,
-            canPreventDefault: true,
+          const onPress = () => {
+            const event = navigation.emit({
+              type: "tabPress",
+              target: route.key,
+              canPreventDefault: true,
           });
+
+          // Custom behavior for Plus tab: open Quick Actions bottom drawer
+          if (route.name === "Plus") {
+            const rootNav = (navigation as any)?.getParent?.() || (navigation as any);
+            (rootNav as any)?.navigate("DetailsDrawer", {
+              type: "quickActions",
+              title: "Quick Actions",
+              actions: [
+                { label: "Gyms", icon: "dumbbell", route: "Gyms", params: { screen: "Gyms" } },
+                { label: "Enquiry", icon: "email-outline", route: "Enquiry", params: { screen: "EnquiryList" } },
+                { label: "Plans", icon: "book-outline", route: "Plans", params: { screen: "MembershipPlansList" } },
+                { label: "Settings", icon: "cog-outline", route: "Profile", params: { screen: "ProfileHome" } },
+              ],
+            });
+            return;
+          }
 
           if (!isFocused && !event.defaultPrevented) {
             navigation.navigate(route.name);
@@ -91,6 +109,9 @@ export default function CustomTabBar({
             break;
           case "Members":
             iconName = "account-group-outline";
+            break;
+          case "Plus":
+            iconName = "plus-circle-outline";
             break;
           case "Billing":
             iconName = "credit-card-outline";
@@ -117,6 +138,7 @@ export default function CustomTabBar({
             break;
         }
 
+        const isPlus = route.name === "Plus";
         return (
           <TouchableOpacity
             key={route.key}
@@ -125,18 +147,20 @@ export default function CustomTabBar({
           >
             <IconMC
               name={iconName}
-              size={24}
-              color={isFocused ? mode.iconActive : mode.iconInactive}
+              size={isPlus ? 36 : 24}
+              color={isPlus ? accent : isFocused ? mode.iconActive : mode.iconInactive}
             />
-            <Text
-              style={{
-                fontSize: 12,
-                color: isFocused ? mode.textActive : mode.textInactive,
-                marginTop: 2,
-              }}
-            >
-              {String(label)}
-            </Text>
+            {!isPlus && (
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: isFocused ? mode.textActive : mode.textInactive,
+                  marginTop: 2,
+                }}
+              >
+                {String(label)}
+              </Text>
+            )}
           </TouchableOpacity>
         );
       })}
