@@ -148,6 +148,8 @@ function RootWithModal() {
         name="DetailsDrawer"
         component={DetailsDrawer}
         options={{
+          // Semi-transparent overlay that does not resize the background
+          presentation: 'transparentModal',
           cardStyle: { backgroundColor: 'transparent' },
           cardOverlayEnabled: true,
           gestureEnabled: true,

@@ -8,6 +8,7 @@ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useColorScheme } from "@/components/useColorScheme";
 import { Slot } from "expo-router";
 import { ThemeProvider as AppThemeProvider, useAppTheme } from "@/components/theme/ThemeContext";
+import { AuthProvider } from "@/components/auth/AuthContext";
 
 import "../global.css";
 
@@ -58,7 +59,9 @@ function RootLayoutNav() {
 
   return (
     <AppThemeProvider>
-      <ThemeContainer fallbackScheme={colorScheme} />
+      <AuthProvider>
+        <ThemeContainer fallbackScheme={colorScheme} />
+      </AuthProvider>
     </AppThemeProvider>
   );
 }
