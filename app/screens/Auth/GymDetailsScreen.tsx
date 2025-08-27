@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { View, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Pressable } from '@/components/ui/pressable';
@@ -13,6 +13,7 @@ export default function GymDetailsScreen() {
 
   const [gymName, setGymName] = useState('');
   const [city, setCity] = useState('');
+  const cityRef = useRef<TextInput>(null);
 
   const errors = useMemo(() => {
     const e: Record<string, string> = {};
@@ -33,19 +34,32 @@ export default function GymDetailsScreen() {
     value,
     onChangeText,
     placeholder,
+    inputRef,
+    returnKeyType,
+    onSubmitEditing,
   }: {
     label: string;
     value: string;
     onChangeText: (t: string) => void;
     placeholder: string;
+    inputRef?: React.RefObject<TextInput>;
+    returnKeyType?: 'next' | 'done';
+    onSubmitEditing?: () => void;
   }) => (
     <View className="w-full mb-3">
       <Text className={`${labelCls} text-sm mb-2`}>{label}</Text>
       <TextInput
         value={value}
-        onChangeText={onChangeText}
+        onChangeText={(t) => onChangeText(t)}
         placeholder={placeholder}
         placeholderTextColor={placeholderColor}
+        editable
+        ref={inputRef}
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing}
+        blurOnSubmit={returnKeyType !== 'next'}
+        selectionColor={accentColor}
+        cursorColor={accentColor}
         className={`border ${inputBorder} rounded-lg px-3 py-3 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800`}
       />
     </View>
@@ -60,7 +74,7 @@ export default function GymDetailsScreen() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="always">
         <View className="flex-1 bg-white dark:bg-[#0B1220]">
           <View style={{ backgroundColor: accentColor, height: 180, borderBottomLeftRadius: 36, borderBottomRightRadius: 36 }} />
 
@@ -70,10 +84,24 @@ export default function GymDetailsScreen() {
               style={{ borderWidth: 1, borderColor: '#e5e7eb', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 4 }}
             >
               <Text className="text-xl font-semibold text-slate-900 mb-4">Gym Details</Text>
-              <Field label="Gym Name" value={gymName} onChangeText={setGymName} placeholder="Your gym name" />
+              <Field
+                label="Gym Name"
+                value={gymName}
+                onChangeText={setGymName}
+                placeholder="Your gym name"
+                returnKeyType="next"
+                onSubmitEditing={() => cityRef.current?.focus()}
+              />
               {errors.gymName ? <Text className={helperErr}>{errors.gymName}</Text> : null}
 
-              <Field label="City" value={city} onChangeText={setCity} placeholder="City" />
+              <Field
+                label="City"
+                value={city}
+                onChangeText={setCity}
+                placeholder="City"
+                inputRef={cityRef}
+                returnKeyType="done"
+              />
               {errors.city ? <Text className={helperErr}>{errors.city}</Text> : null}
 
               <Pressable onPress={onSave} disabled={!canSave} style={{ backgroundColor: canSave ? accentColor : '#94a3b8' }} className="rounded-full mt-2 py-3 items-center">
