@@ -31,13 +31,18 @@ export default function DetailsDrawer() {
   );
 
   return (
-    <View className="flex-1 bg-black/40">
-      {/* Backdrop */}
-      <Pressable className="flex-1" onPress={() => navigation.goBack()} />
+    <View className="flex-1">
+      {/* Backdrop (semi-transparent) */}
+      <Pressable onPress={() => navigation.goBack()}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+        className="bg-black/40"
+      />
 
-      {/* Bottom Sheet */}
-      <View className="bg-white dark:bg-slate-900 rounded-t-2xl p-4 border-t border-slate-200 dark:border-gray-800"
-            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 10 }}>
+      {/* Bottom Sheet overlay (absolute, so it won't resize background) */}
+      <View
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}
+        className="bg-white dark:bg-slate-900 rounded-t-2xl p-4 border-t border-slate-200 dark:border-gray-800"
+      >
         {/* Handle */}
         <View className="items-center mb-3">
           <View className="w-10 h-1.5 rounded-full bg-slate-300 dark:bg-gray-700" />

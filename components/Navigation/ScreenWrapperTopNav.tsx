@@ -30,7 +30,7 @@ export default function ScreenWrapper({ title, theme, children }: ScreenWrapperP
         onNotificationPress={() => navigation.navigate('Notifications')}
       />
       <Animated.ScrollView
-        contentContainerStyle={{ paddingTop: 56 + 16, paddingBottom: 80 }}
+        contentContainerStyle={{ paddingTop: 56 + 16, paddingBottom: 80, backgroundColor: 'white' }}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
       >
