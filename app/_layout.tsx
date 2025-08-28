@@ -15,7 +15,7 @@ import {
   ThemeProvider as AppThemeProvider,
   useAppTheme,
 } from "@/components/theme/ThemeContext";
-import { AuthProvider } from "@/components/auth/AuthContext";
+import { AuthProvider } from "@/app/context/AuthContext";
 
 import "../global.css";
 import { Provider } from "react-redux";

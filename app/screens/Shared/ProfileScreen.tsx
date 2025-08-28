@@ -13,17 +13,18 @@ import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { useAppTheme } from "@/components/theme/ThemeContext";
 import ScreenWrapper from "@/components/Navigation/ScreenWrapperTopNav";
-import { useAuth } from "@/components/auth/AuthContext";
 import { useRouter } from "expo-router";
+import { logout } from "@/app/slice/authSlice";
+import { useAppDispatch } from "@/app/hooks/hook";
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { theme, toggleTheme, accentColor, setAccentColor } = useAppTheme();
-  const { logout } = useAuth();
   const router = useRouter();
   const [fullName, setFullName] = useState("Jane Doe");
   const [email, setEmail] = useState("jane.doe@gym.com");
   const [phone, setPhone] = useState("+91 98765 43210");
+  const dispatch = useAppDispatch();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -350,7 +351,7 @@ export default function ProfileScreen() {
                 setLoggingOut(true);
                 try {
                   console.log('[Logout] onPress');
-                  await logout();
+                  dispatch(logout());
                   console.log('[Logout] token cleared, navigating to root');
                   router.replace('/');
                 } finally {
@@ -363,7 +364,7 @@ export default function ProfileScreen() {
                 console.log('[Logout] onPressOut fallback');
                 setLoggingOut(true);
                 try {
-                  await logout();
+                  dispatch(logout());
                   router.replace('/');
                 } finally {
                   if (isMounted.current) setLoggingOut(false);

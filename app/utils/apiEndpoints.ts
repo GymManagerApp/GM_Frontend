@@ -4,6 +4,7 @@ export const apiEndpoints = {
     registerByPhone: "/auth/register/owner/phone",
     loginByEmail: "/auth/login/owner/email",
     loginByPhone: "/auth/login/owner/phone",
+    logout: "/auth/logout",
   },
   gym: {
     addGym: "/gyms",

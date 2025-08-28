@@ -7,8 +7,9 @@ import ForgotPasswordScreen from "../screens/Auth/ForgotPasswordScreen";
 import RegisterScreen from "../screens/Auth/RegisterScreen";
 import GymDetailsScreen from "../screens/Auth/GymDetailsScreen";
 import OwnerNavigator from "./OwnerNavigator";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View, ActivityIndicator } from "react-native";
+import { getObjectItem, removeItem } from "../hooks/useLocalStorage";
+import { isTokenExpired } from "../utils/tokenValidation";
 
 const Stack = createStackNavigator();
 
@@ -18,24 +19,6 @@ interface UserDetails {
   exp?: number; // Token expiration timestamp
   [key: string]: any;
 }
-
-// Helper function to check if token is expired
-const isTokenExpired = (token: string): boolean => {
-  try {
-    // Decode JWT token to get expiration
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const currentTime = Math.floor(Date.now() / 1000);
-    
-    // Check if token has exp field and if it's expired
-    if (payload.exp && payload.exp < currentTime) {
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error("Error decoding token:", error);
-    return true; // Treat invalid tokens as expired
-  }
-};
 
 export default function AuthNavigator() {
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
@@ -47,19 +30,18 @@ export default function AuthNavigator() {
 
   const checkAuthState = async () => {
     try {
-      const storedUserDetails = await AsyncStorage.getItem("userDetails");
+      const storedUserDetails: UserDetails | null = await getObjectItem("userDetails");
       console.log("Stored userDetails:", storedUserDetails);
       
       if (storedUserDetails) {
-        const parsedDetails: UserDetails = JSON.parse(storedUserDetails);
         
-        if (parsedDetails.token && !isTokenExpired(parsedDetails.token)) {
+        if (storedUserDetails.token && !isTokenExpired(storedUserDetails.token)) {
           // Token is valid, set user details
-          setUserDetails(parsedDetails);
+          setUserDetails(storedUserDetails);
         } else {
           // Token is expired, clear storage
           console.log("Token expired, clearing storage");
-          await AsyncStorage.removeItem("userDetails");
+          await removeItem("userDetails");
           setUserDetails(null);
         }
       } else {

@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { apiEndpoints } from "@/app/utils/apiEndpoints";
 import { HOST_API } from "@/app/utils/config";
+import { removeItem } from "../hooks/useLocalStorage";
 
 export const ownerRegisterByEmail = createAsyncThunk(
   "auth/ownerRegisterByEmail",
@@ -29,6 +30,18 @@ export const ownerLoginByEmail = createAsyncThunk(
       const URL = `${HOST_API}${apiEndpoints.auth.loginByEmail}`;
       const response = await axios.post(URL, payload);
       return response.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const logout = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      await removeItem("userDetails");
+      return {};
     } catch (error) {
       return rejectWithValue(error);
     }

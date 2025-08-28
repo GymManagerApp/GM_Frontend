@@ -14,7 +14,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { ownerRegisterByEmail } from "@/app/slice/authSlice";
 import { useAppDispatch, useAppSelector } from "@/app/hooks/hook";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAllKeys, getObjectItem, setObjectItem } from "@/app/hooks/useLocalStorage";
 
 export default function RegisterScreen() {
   const { theme, accentColor } = useAppTheme();
@@ -73,11 +73,11 @@ export default function RegisterScreen() {
       };
       console.log("Setting user details in local storage")
       // Store in local storage
-      await AsyncStorage.setItem("userDetails", JSON.stringify(userDetails));
-      console.log("userDetails:", await AsyncStorage.getItem("userDetails"));
+      await setObjectItem("userDetails", userDetails);
+      console.log("userDetails:", await getObjectItem("userDetails"));
       console.log(
         "All keys in local storage: ",
-        await AsyncStorage.getAllKeys()
+        await getAllKeys()
       );
 
       console.log("Owner registered successfully");
