@@ -85,27 +85,7 @@ export default function GymDetailsScreen() {
       console.log("gymName", gymName);
       console.log("city", city);
       // Dispatch and wait for the actual response
-      const response = await dispatch(addGym({ name: gymName, city })).unwrap();
-
-      console.log("✅ addGymData:", response);
-
-      const gymDetails = {
-        gym_id: response?.gymData?._id,
-        name: response?.gymData?.name,
-        city: response?.gymData?.address?.city,
-        owner_id: response?.gymData?.owner_id,
-        gym_user_id: response?.gymUserData?._id,
-        role: response?.gymUserData?.role,
-        user_id: response?.gymUserData?.user_id,
-      };
-
-      await AsyncStorage.setItem("gymDetails", JSON.stringify(gymDetails));
-      console.log("gymDetails:", await AsyncStorage.getItem("gymDetails"));
-      console.log(
-        "All keys in local storage: ",
-        await AsyncStorage.getAllKeys()
-      );
-
+      await dispatch(addGym({ name: gymName, city })).unwrap();
       // Navigate only if success
       router.replace("/navigation/OwnerNavigator");
     } catch (error: any) {

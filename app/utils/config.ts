@@ -1,1 +1,1 @@
-export const HOST_API = "https://75db9159a59a.ngrok-free.app";
+export const HOST_API = "https://7d86f48ddc7d.ngrok-free.app";
