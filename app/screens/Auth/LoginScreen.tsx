@@ -116,8 +116,8 @@ export default function LoginScreen() {
                   <Text className="ml-2 text-slate-800 font-medium">Continue with Google</Text>
                 </Pressable>
                 <Pressable className="flex-row items-center justify-center bg-white rounded-2xl py-3" style={{ borderWidth: 1, borderColor: '#e5e7eb', shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>
-                  <Icon name="facebook" size={18} color="#1877F2" />
-                  <Text className="ml-2 text-slate-800 font-medium">Continue with Facebook</Text>
+                  <Icon name="phone" size={18} color="#1877F2" />
+                  <Text className="ml-2 text-slate-800 font-medium">Continue with Phone</Text>
                 </Pressable>
               </View>
 

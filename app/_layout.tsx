@@ -1,5 +1,9 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
@@ -7,10 +11,15 @@ import { View } from "react-native";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useColorScheme } from "@/components/useColorScheme";
 import { Slot } from "expo-router";
-import { ThemeProvider as AppThemeProvider, useAppTheme } from "@/components/theme/ThemeContext";
+import {
+  ThemeProvider as AppThemeProvider,
+  useAppTheme,
+} from "@/components/theme/ThemeContext";
 import { AuthProvider } from "@/components/auth/AuthContext";
 
 import "../global.css";
+import { Provider } from "react-redux";
+import { store } from "./store/store";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -66,7 +75,11 @@ function RootLayoutNav() {
   );
 }
 
-function ThemeContainer({ fallbackScheme }: { fallbackScheme: "light" | "dark" | null | undefined }) {
+function ThemeContainer({
+  fallbackScheme,
+}: {
+  fallbackScheme: "light" | "dark" | null | undefined;
+}) {
   const { theme } = useAppTheme();
   const active = theme ?? (fallbackScheme === "dark" ? "dark" : "light");
 
@@ -74,7 +87,9 @@ function ThemeContainer({ fallbackScheme }: { fallbackScheme: "light" | "dark" |
     <GluestackUIProvider mode={active === "dark" ? "dark" : "light"}>
       <ThemeProvider value={active === "dark" ? DarkTheme : DefaultTheme}>
         <View className={active === "dark" ? "dark flex-1" : "flex-1"}>
-          <Slot />
+          <Provider store={store}>
+            <Slot />
+          </Provider>
         </View>
       </ThemeProvider>
     </GluestackUIProvider>
