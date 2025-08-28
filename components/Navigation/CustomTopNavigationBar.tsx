@@ -70,6 +70,7 @@ export default function TopNavigationBar({
 
   return (
     <Animated.View
+      pointerEvents="box-none"
       style={[
         styles.container,
         animatedStyle,
@@ -79,21 +80,23 @@ export default function TopNavigationBar({
         },
       ]}
     >
-      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
-      <View style={styles.right}>
-        <TouchableOpacity
-          onPress={onNotificationPress || (() => navigation.navigate('Notifications'))}
-          style={styles.iconButton}
-          activeOpacity={0.7}
-        >
-          <IconMC name="bell-outline" size={24} color={colors.iconActive} />
-        </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.7}>
-          <Image
-            source={profileImageUri ? { uri: profileImageUri } : undefined}
-            style={styles.profileImage}
-          />
-        </TouchableOpacity>
+      <View style={styles.content} pointerEvents="auto">
+        <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+        <View style={styles.right}>
+          <TouchableOpacity
+            onPress={onNotificationPress || (() => navigation.navigate('Notifications'))}
+            style={styles.iconButton}
+            activeOpacity={0.7}
+          >
+            <IconMC name="bell-outline" size={24} color={colors.iconActive} />
+          </TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.7}>
+            <Image
+              source={profileImageUri ? { uri: profileImageUri } : undefined}
+              style={styles.profileImage}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     </Animated.View>
   );
@@ -104,14 +107,18 @@ const styles = StyleSheet.create({
     height: NAVBAR_HEIGHT,
     width: "100%",
     borderBottomWidth: 1,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     position: "absolute",
     top: 0,
     zIndex: 1000,
     elevation: 10,
+  },
+  content: {
+    paddingHorizontal: 16,
+    height: NAVBAR_HEIGHT,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: '100%',
   },
   title: {
     fontSize: 20,

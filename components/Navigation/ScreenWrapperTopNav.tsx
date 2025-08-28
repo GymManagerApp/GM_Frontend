@@ -16,13 +16,14 @@ export default function ScreenWrapper({ title, theme, children }: ScreenWrapperP
   const navigation = useNavigation<any>();
   const { theme: ctxTheme } = useAppTheme();
   const currentTheme = theme || ctxTheme;
+  const bg = currentTheme === 'dark' ? '#d1d5db' : '#ffffff';
 
   const scrollHandler = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: bg }}>
       <TopNavigationBar
         title={title}
         scrollY={scrollY}
@@ -30,9 +31,11 @@ export default function ScreenWrapper({ title, theme, children }: ScreenWrapperP
         onNotificationPress={() => navigation.navigate('Notifications')}
       />
       <Animated.ScrollView
-        contentContainerStyle={{ paddingTop: 56 + 16, paddingBottom: 80, backgroundColor: 'white' }}
+        contentContainerStyle={{ paddingTop: 56 + 16, paddingBottom: 80, backgroundColor: currentTheme === "dark" ? "black" : "#ffffff" }}
+        style={{ flex: 1, backgroundColor: 'black' }}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
+        keyboardShouldPersistTaps="handled"
       >
         {children}
       </Animated.ScrollView>
