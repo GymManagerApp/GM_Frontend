@@ -7,11 +7,15 @@ import { useAuth } from '@/components/auth/AuthContext';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { ownerLoginByEmail } from '@/app/slice/authSlice';
+import { useAppDispatch } from '@/app/hooks/hook';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
   const { theme, accentColor } = useAppTheme();
   const { login } = useAuth();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const navigation = useNavigation<any>();
 
   const [email, setEmail] = useState('');
@@ -32,9 +36,36 @@ export default function LoginScreen() {
   const onSubmit = async () => {
     if (!canSubmit || submitting) return;
     setSubmitting(true);
+
     try {
-      await login(email, password);
-      router.replace('/navigation/OwnerNavigator');
+      const payload = { email, password };
+      console.log("payload", payload);
+
+      // ✅ Use unwrap() to get response data directly
+      const response = await dispatch(ownerLoginByEmail(payload)).unwrap();
+
+      console.log("API response", response);
+      const userDetails = {
+        _id: response?.data?.user?._id,
+        fullName: response?.data?.user?.fullName,
+        email: response?.data?.user?.email,
+        phone: response?.data?.user?.phone,
+        role: response?.data?.user?.role,
+        token: response?.data?.token,
+      };
+      console.log("Setting user details in local storage")
+      // Store in local storage
+      await AsyncStorage.setItem("userDetails", JSON.stringify(userDetails));
+      console.log("userDetails:", await AsyncStorage.getItem("userDetails"));
+      console.log(
+        "All keys in local storage: ",
+        await AsyncStorage.getAllKeys()
+      );
+
+      console.log("Owner signed in successfully");
+      router.replace("/navigation/OwnerNavigator");
+    } catch (err) {
+      console.log("Owner login failed:", err);
     } finally {
       setSubmitting(false);
     }
