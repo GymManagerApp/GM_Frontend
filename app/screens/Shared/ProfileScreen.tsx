@@ -7,14 +7,19 @@ import {
   Pressable,
   Switch,
 } from "react-native";
+import { InteractionManager } from "react-native";
 import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { useAppTheme } from "@/components/theme/ThemeContext";
 import ScreenWrapper from "@/components/Navigation/ScreenWrapperTopNav";
+import { useAuth } from "@/components/auth/AuthContext";
+import { useRouter } from "expo-router";
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { theme, toggleTheme, accentColor, setAccentColor } = useAppTheme();
+  const { logout } = useAuth();
+  const router = useRouter();
   const [fullName, setFullName] = useState("Jane Doe");
   const [email, setEmail] = useState("jane.doe@gym.com");
   const [phone, setPhone] = useState("+91 98765 43210");
@@ -27,6 +32,7 @@ export default function ProfileScreen() {
   const [notifPayments, setNotifPayments] = useState(true);
   const [notifSchedule, setNotifSchedule] = useState(false);
   const [notifPromos, setNotifPromos] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const placeholder = theme === "dark" ? "#6b7280" : "#94a3b8";
   const accent = accentColor || (theme === "dark" ? "#4EA1FF" : "#1d74f5");
@@ -325,8 +331,25 @@ export default function ProfileScreen() {
 
           {/* Logout */}
           <View className="px-4 mt-4 mb-6">
-            <Pressable className="bg-rose-600 dark:bg-rose-500 rounded-xl py-3 items-center justify-center">
-              <Text className="text-white font-semibold">Logout</Text>
+            <Pressable
+              className="bg-rose-600 dark:bg-rose-500 rounded-xl py-3 items-center justify-center"
+              disabled={loggingOut}
+              style={{ opacity: loggingOut ? 0.7 : 1 }}
+              onPress={async () => {
+                if (loggingOut) return;
+                setLoggingOut(true);
+                try {
+                  await logout();
+                  InteractionManager.runAfterInteractions(() => {
+                    // Let app/index route based on token for a cleaner transition
+                    router.replace("/");
+                  });
+                } finally {
+                  // no-op; we navigate away immediately
+                }
+              }}
+            >
+              <Text className="text-white font-semibold">{loggingOut ? "Logging out..." : "Logout"}</Text>
             </Pressable>
           </View>
         </ScrollView>
