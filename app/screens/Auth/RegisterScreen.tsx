@@ -14,7 +14,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { ownerRegisterByEmail } from "@/app/slice/authSlice";
 import { useAppDispatch, useAppSelector } from "@/app/hooks/hook";
-import { getObjectItem, setObjectItem } from "@/app/hooks/useLocalStorage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function RegisterScreen() {
   const { theme, accentColor } = useAppTheme();
@@ -54,25 +54,36 @@ export default function RegisterScreen() {
   const onSubmit = async () => {
     if (!canSubmit || submitting) return;
     setSubmitting(true);
-    try {
-      const payload = {
-        name,
-        email,
-        password,
-      };
-      console.log("payload", payload);
-      dispatch(ownerRegisterByEmail(payload)).unwrap();
 
-      //Store local storage
+    try {
+      const payload = { name, email, password };
+      console.log("payload", payload);
+
+      // ✅ Use unwrap() to get response data directly
+      const response = await dispatch(ownerRegisterByEmail(payload)).unwrap();
+
+      console.log("API response", response);
+      const userDetails = {
+        _id: response?.data?.user?._id,
+        fullName: response?.data?.user?.fullName,
+        email: response?.data?.user?.email,
+        phone: response?.data?.user?.phone,
+        role: response?.data?.user?.role,
+        token: response?.data?.token,
+      };
+      console.log("Setting user details in local storage")
+      // Store in local storage
+      await AsyncStorage.setItem("userDetails", JSON.stringify(userDetails));
+      console.log("userDetails:", await AsyncStorage.getItem("userDetails"));
+      console.log(
+        "All keys in local storage: ",
+        await AsyncStorage.getAllKeys()
+      );
+
       console.log("Owner registered successfully");
-      if (ownerRegisterByEmailData.status === "succeeded") {
-        console.log("ownerRegisterByEmailData", ownerRegisterByEmailData.data);
-        setObjectItem("userDetails", ownerRegisterByEmailData.data);
-        console.log("user local storage get", getObjectItem("userDetails"));
-        navigation.navigate("GymDetails");
-      }
+      navigation.navigate("GymDetails");
     } catch (err) {
-      console.log("Error caught:", err);
+      console.log("Owner registration failed:", err);
     } finally {
       setSubmitting(false);
     }

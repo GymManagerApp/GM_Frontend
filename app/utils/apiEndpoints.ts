@@ -5,4 +5,7 @@ export const apiEndpoints = {
     loginByEmail: "/auth/login/owner/email",
     loginByPhone: "/auth/login/owner/phone",
   },
+  gym: {
+    addGym: "/gyms",
+  }
 };

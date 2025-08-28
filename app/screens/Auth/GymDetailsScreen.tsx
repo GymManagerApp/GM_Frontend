@@ -1,33 +1,46 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { View, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Text } from '@/components/ui/text';
-import { Pressable } from '@/components/ui/pressable';
-import { useAppTheme } from '@/components/theme/ThemeContext';
-import { useRouter } from 'expo-router';
-import { useAuth } from '@/components/auth/AuthContext';
+import React, { useMemo, useRef, useState } from "react";
+import {
+  View,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import { Text } from "@/components/ui/text";
+import { Pressable } from "@/components/ui/pressable";
+import { useAppTheme } from "@/components/theme/ThemeContext";
+import { useRouter } from "expo-router";
+import { useAppDispatch, useAppSelector } from "@/app/hooks/hook";
+import { RootState } from "@/app/store/store";
+import { addGym } from "@/app/slice/gymSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function GymDetailsScreen() {
   const { theme, accentColor } = useAppTheme();
   const router = useRouter();
-  const { token } = useAuth();
+  const dispatch = useAppDispatch();
+  const addGymData = useAppSelector(
+    (state: RootState) => state.gymSlc.addGymData
+  );
 
-  const [gymName, setGymName] = useState('');
-  const [city, setCity] = useState('');
+  const [gymName, setGymName] = useState("");
+  const [city, setCity] = useState("");
   const cityRef = useRef<TextInput>(null);
 
   const errors = useMemo(() => {
     const e: Record<string, string> = {};
-    if (!gymName.trim()) e.gymName = 'Required';
-    if (!city.trim()) e.city = 'Required';
+    if (!gymName.trim()) e.gymName = "Required";
+    if (!city.trim()) e.city = "Required";
     return e;
   }, [gymName, city]);
 
   const canSave = Object.keys(errors).length === 0;
 
-  const labelCls = theme === 'dark' ? 'text-slate-300' : 'text-slate-700';
-  const inputBorder = theme === 'dark' ? 'dark:border-slate-700' : 'border-slate-200';
-  const placeholderColor = theme === 'dark' ? '#64748b' : '#94a3b8';
-  const helperErr = 'text-red-500 mt-1 text-xs';
+  const labelCls = theme === "dark" ? "text-slate-300" : "text-slate-700";
+  const inputBorder =
+    theme === "dark" ? "dark:border-slate-700" : "border-slate-200";
+  const placeholderColor = theme === "dark" ? "#64748b" : "#94a3b8";
+  const helperErr = "text-red-500 mt-1 text-xs";
 
   const Field = ({
     label,
@@ -43,7 +56,7 @@ export default function GymDetailsScreen() {
     onChangeText: (t: string) => void;
     placeholder: string;
     inputRef?: React.RefObject<TextInput>;
-    returnKeyType?: 'next' | 'done';
+    returnKeyType?: "next" | "done";
     onSubmitEditing?: () => void;
   }) => (
     <View className="w-full mb-3">
@@ -57,7 +70,7 @@ export default function GymDetailsScreen() {
         ref={inputRef}
         returnKeyType={returnKeyType}
         onSubmitEditing={onSubmitEditing}
-        blurOnSubmit={returnKeyType !== 'next'}
+        blurOnSubmit={returnKeyType !== "next"}
         selectionColor={accentColor}
         cursorColor={accentColor}
         className={`border ${inputBorder} rounded-lg px-3 py-3 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800`}
@@ -67,23 +80,75 @@ export default function GymDetailsScreen() {
 
   const onSave = async () => {
     if (!canSave) return;
-    // TODO: Persist gym profile
-    // After saving, go to dashboard
-    router.replace('/navigation/OwnerNavigator');
+    try {
+      console.log("dispatching addGym");
+      console.log("gymName", gymName);
+      console.log("city", city);
+      // Dispatch and wait for the actual response
+      const response = await dispatch(addGym({ name: gymName, city })).unwrap();
+
+      console.log("✅ addGymData:", response);
+
+      const gymDetails = {
+        gym_id: response?.gymData?._id,
+        name: response?.gymData?.name,
+        city: response?.gymData?.address?.city,
+        owner_id: response?.gymData?.owner_id,
+        gym_user_id: response?.gymUserData?._id,
+        role: response?.gymUserData?.role,
+        user_id: response?.gymUserData?.user_id,
+      };
+
+      await AsyncStorage.setItem("gymDetails", JSON.stringify(gymDetails));
+      console.log("gymDetails:", await AsyncStorage.getItem("gymDetails"));
+      console.log(
+        "All keys in local storage: ",
+        await AsyncStorage.getAllKeys()
+      );
+
+      // Navigate only if success
+      router.replace("/navigation/OwnerNavigator");
+    } catch (error: any) {
+      // Thunk failed
+      console.log("❌ Error while adding gym:", error);
+    }
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="always">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={{ flex: 1 }}
+    >
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="always"
+      >
         <View className="flex-1 bg-white dark:bg-[#0B1220]">
-          <View style={{ backgroundColor: accentColor, height: 180, borderBottomLeftRadius: 36, borderBottomRightRadius: 36 }} />
+          <View
+            style={{
+              backgroundColor: accentColor,
+              height: 180,
+              borderBottomLeftRadius: 36,
+              borderBottomRightRadius: 36,
+            }}
+          />
 
           <View className="px-5 -mt-16">
             <View
               className="rounded-3xl bg-white p-5 dark:bg-slate-900"
-              style={{ borderWidth: 1, borderColor: '#e5e7eb', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 4 }}
+              style={{
+                borderWidth: 1,
+                borderColor: "#e5e7eb",
+                shadowColor: "#000",
+                shadowOpacity: 0.08,
+                shadowRadius: 10,
+                shadowOffset: { width: 0, height: 6 },
+                elevation: 4,
+              }}
             >
-              <Text className="text-xl font-semibold text-slate-900 mb-4">Gym Details</Text>
+              <Text className="text-xl font-semibold text-slate-900 mb-4">
+                Gym Details
+              </Text>
               <Field
                 label="Gym Name"
                 value={gymName}
@@ -92,7 +157,9 @@ export default function GymDetailsScreen() {
                 returnKeyType="next"
                 onSubmitEditing={() => cityRef.current?.focus()}
               />
-              {errors.gymName ? <Text className={helperErr}>{errors.gymName}</Text> : null}
+              {errors.gymName ? (
+                <Text className={helperErr}>{errors.gymName}</Text>
+              ) : null}
 
               <Field
                 label="City"
@@ -102,10 +169,19 @@ export default function GymDetailsScreen() {
                 inputRef={cityRef}
                 returnKeyType="done"
               />
-              {errors.city ? <Text className={helperErr}>{errors.city}</Text> : null}
+              {errors.city ? (
+                <Text className={helperErr}>{errors.city}</Text>
+              ) : null}
 
-              <Pressable onPress={onSave} disabled={!canSave} style={{ backgroundColor: canSave ? accentColor : '#94a3b8' }} className="rounded-full mt-2 py-3 items-center">
-                <Text className="text-white font-semibold">Save & Continue</Text>
+              <Pressable
+                onPress={onSave}
+                disabled={!canSave}
+                style={{ backgroundColor: canSave ? accentColor : "#94a3b8" }}
+                className="rounded-full mt-2 py-3 items-center"
+              >
+                <Text className="text-white font-semibold">
+                  Save & Continue
+                </Text>
               </Pressable>
             </View>
           </View>

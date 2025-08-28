@@ -22,11 +22,11 @@ export const ownerRegisterByEmail = createAsyncThunk(
   }
 );
 
-export const ownerRegisterByPhone = createAsyncThunk(
-  "auth/ownerRegisterByPhone",
-  async (payload: { name: string; phone: string }, { rejectWithValue }) => {
+export const ownerLoginByEmail = createAsyncThunk(
+  "auth/ownerLoginByEmail",
+  async (payload: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const URL = `${HOST_API}${apiEndpoints.auth.registerByPhone}`;
+      const URL = `${HOST_API}${apiEndpoints.auth.loginByEmail}`;
       const response = await axios.post(URL, payload);
       return response.data;
     } catch (error) {
@@ -49,7 +49,7 @@ const initialState: {
     status: "",
     error: null,
   },
-  ownerRegisterByPhoneData: {
+  ownerLoginByEmailData: {
     isLoading: false,
     data: {},
     status: "",
@@ -91,20 +91,20 @@ const authSlice = createSlice({
         state.ownerRegisterByEmailData.status = "failed";
       })
 
-      // Owner Register By Phone Reducer States
-      .addCase(ownerRegisterByPhone.pending, (state) => {
-        state.ownerRegisterByPhoneData.isLoading = true;
+      // Owner Login By Email Reducer States
+      .addCase(ownerLoginByEmail.pending, (state) => {
+        state.ownerLoginByEmailData.isLoading = true;
       })
-      .addCase(ownerRegisterByPhone.fulfilled, (state, action) => {
+      .addCase(ownerLoginByEmail.fulfilled, (state, action) => {
         if (action.payload.error) {
-          state.ownerRegisterByPhoneData = {
+          state.ownerLoginByEmailData = {
             isLoading: false,
             status: "failed",
             data: {},
             error: action.payload.error,
           };
         } else {
-          state.ownerRegisterByPhoneData = {
+          state.ownerLoginByEmailData = {
             isLoading: false,
             status: "succeeded",
             data: action.payload,
@@ -112,10 +112,10 @@ const authSlice = createSlice({
           };
         }
       })
-      .addCase(ownerRegisterByPhone.rejected, (state, action) => {
-        state.ownerRegisterByPhoneData.isLoading = false;
-        state.ownerRegisterByPhoneData.error = action.error.message ?? null;
-        state.ownerRegisterByPhoneData.status = "failed";
+      .addCase(ownerLoginByEmail.rejected, (state, action) => {
+        state.ownerLoginByEmailData.isLoading = false;
+        state.ownerLoginByEmailData.error = action.error.message ?? null;
+        state.ownerLoginByEmailData.status = "failed";
       });
   },
 });
