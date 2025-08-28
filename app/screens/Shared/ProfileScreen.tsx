@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
   ScrollView,
   TextInput,
-  Pressable,
   Switch,
+  TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { InteractionManager } from "react-native";
 import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
@@ -33,6 +34,12 @@ export default function ProfileScreen() {
   const [notifSchedule, setNotifSchedule] = useState(false);
   const [notifPromos, setNotifPromos] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const isMounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const placeholder = theme === "dark" ? "#6b7280" : "#94a3b8";
   const accent = accentColor || (theme === "dark" ? "#4EA1FF" : "#1d74f5");
@@ -49,7 +56,7 @@ export default function ProfileScreen() {
   return (
     <ScreenWrapper title="Profile & Settings" theme={theme}>
       <View className="flex-1 bg-white dark:bg-slate-950">
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+        <View style={{ paddingBottom: 40 }}>
           {/* Header */}
           <View className="px-4 pt-6 pb-2">
             <View
@@ -331,28 +338,42 @@ export default function ProfileScreen() {
 
           {/* Logout */}
           <View className="px-4 mt-4 mb-6">
-            <Pressable
+            <TouchableOpacity
+              activeOpacity={0.7}
               className="bg-rose-600 dark:bg-rose-500 rounded-xl py-3 items-center justify-center"
+              onPressIn={() => console.log('[Logout] onPressIn')}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
               disabled={loggingOut}
               style={{ opacity: loggingOut ? 0.7 : 1 }}
               onPress={async () => {
                 if (loggingOut) return;
                 setLoggingOut(true);
                 try {
+                  console.log('[Logout] onPress');
                   await logout();
-                  InteractionManager.runAfterInteractions(() => {
-                    // Let app/index route based on token for a cleaner transition
-                    router.replace("/");
-                  });
+                  console.log('[Logout] token cleared, navigating to root');
+                  router.replace('/');
                 } finally {
-                  // no-op; we navigate away immediately
+                  if (isMounted.current) setLoggingOut(false);
+                }
+              }}
+              onPressOut={async () => {
+                // Fallback in case onPress gets canceled by a slight scroll
+                if (loggingOut) return;
+                console.log('[Logout] onPressOut fallback');
+                setLoggingOut(true);
+                try {
+                  await logout();
+                  router.replace('/');
+                } finally {
+                  if (isMounted.current) setLoggingOut(false);
                 }
               }}
             >
-              <Text className="text-white font-semibold">{loggingOut ? "Logging out..." : "Logout"}</Text>
-            </Pressable>
+              <Text className="text-white font-semibold">{loggingOut ? 'Logging out...' : 'Logout'}</Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
       </View>
     </ScreenWrapper>
   );
