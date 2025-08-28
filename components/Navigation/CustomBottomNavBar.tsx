@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
-import { useColorScheme } from "./useColorScheme.web";
+import { useAppTheme } from "@/components/theme/ThemeContext";
 
 // Example ThemeContext (replace with your own context or prop)
 
@@ -11,8 +11,7 @@ export default function CustomTabBar({
   descriptors,
   navigation,
 }: BottomTabBarProps) {
-  const theme = useColorScheme(); // 'light' or 'dark'
-  // const theme = "dark";
+  const { theme, accentColor } = useAppTheme(); // 'light' | 'dark'
 
   // Define colors for light and dark modes
   const colors = {
@@ -21,22 +20,23 @@ export default function CustomTabBar({
       borderTop: "#e2e8f0", // slate-200
       shadowColor: "#000",
       iconActive: "#1d74f5",
-      iconInactive: "#888",
+      iconInactive: "#000",
       textActive: "#1d74f5",
-      textInactive: "#94a3b8",
+      textInactive: "#000",
     },
     dark: {
-      background: "#121212",
-      borderTop: "#272727",
+      background: "#0f172a", // slate-900
+      borderTop: "#1f2937", // gray-800
       shadowColor: "#000",
-      iconActive: "#22c55e", // green-500
-      iconInactive: "#888",
-      textActive: "#22c55e",
-      textInactive: "#94a3b8",
+      iconActive: "#4EA1FF", // default vibrant blue
+      iconInactive: "#fff",
+      textActive: "#4EA1FF",
+      textInactive: "#fff",
     },
   };
-
-  const mode = theme === "dark" ? colors.dark : colors.light;
+  const accent = accentColor || (theme === "dark" ? "#4EA1FF" : "#1d74f5");
+  const baseMode = theme === "dark" ? colors.dark : colors.light;
+  const mode = { ...baseMode, iconActive: accent, textActive: accent } as typeof baseMode;
 
   return (
     <View
@@ -59,16 +59,34 @@ export default function CustomTabBar({
         justifyContent: "space-between",
       }}
     >
-      {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const isFocused = state.index === index;
+      {state.routes
+        .filter((r) => ["Dashboard", "Members", "Plus", "Staff", "Profile"].includes(r.name))
+        .map((route, index) => {
+          const { options } = descriptors[route.key];
+          const isFocused = state.index === state.routes.findIndex((r) => r.key === route.key);
 
-        const onPress = () => {
-          const event = navigation.emit({
-            type: "tabPress",
-            target: route.key,
-            canPreventDefault: true,
+          const onPress = () => {
+            const event = navigation.emit({
+              type: "tabPress",
+              target: route.key,
+              canPreventDefault: true,
           });
+
+          // Custom behavior for Plus tab: open Quick Actions bottom drawer
+          if (route.name === "Plus") {
+            const rootNav = (navigation as any)?.getParent?.() || (navigation as any);
+            (rootNav as any)?.navigate("DetailsDrawer", {
+              type: "quickActions",
+              title: "Quick Actions",
+              actions: [
+                { label: "Gyms", icon: "dumbbell", route: "Gyms", params: { screen: "Gyms" } },
+                { label: "Enquiry", icon: "email-outline", route: "Enquiry", params: { screen: "EnquiryList" } },
+                { label: "Plans", icon: "book-outline", route: "Plans", params: { screen: "MembershipPlansList" } },
+                { label: "Settings", icon: "cog-outline", route: "Profile", params: { screen: "ProfileHome" } },
+              ],
+            });
+            return;
+          }
 
           if (!isFocused && !event.defaultPrevented) {
             navigation.navigate(route.name);
@@ -92,6 +110,9 @@ export default function CustomTabBar({
           case "Members":
             iconName = "account-group-outline";
             break;
+          case "Plus":
+            iconName = "plus-circle-outline";
+            break;
           case "Billing":
             iconName = "credit-card-outline";
             break;
@@ -100,6 +121,9 @@ export default function CustomTabBar({
             break;
           case "Plans":
             iconName = "book-outline";
+            break;
+          case "Enquiry":
+            iconName = "email-outline";
             break;
           case "Payments":
             iconName = "cash-multiple";
@@ -114,6 +138,7 @@ export default function CustomTabBar({
             break;
         }
 
+        const isPlus = route.name === "Plus";
         return (
           <TouchableOpacity
             key={route.key}
@@ -122,18 +147,20 @@ export default function CustomTabBar({
           >
             <IconMC
               name={iconName}
-              size={24}
-              color={isFocused ? mode.iconActive : mode.iconInactive}
+              size={isPlus ? 36 : 24}
+              color={isPlus ? accent : isFocused ? mode.iconActive : mode.iconInactive}
             />
-            <Text
-              style={{
-                fontSize: 12,
-                color: isFocused ? mode.textActive : mode.textInactive,
-                marginTop: 2,
-              }}
-            >
-              {String(label)}
-            </Text>
+            {!isPlus && (
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: isFocused ? mode.textActive : mode.textInactive,
+                  marginTop: 2,
+                }}
+              >
+                {String(label)}
+              </Text>
+            )}
           </TouchableOpacity>
         );
       })}

@@ -3,49 +3,50 @@ import { View, TextInput, KeyboardAvoidingView, Platform, ScrollView, TouchableO
 import { Text } from '@/components/ui/text';
 import { Pressable } from '@/components/ui/pressable';
 import { useAppTheme } from '@/components/theme/ThemeContext';
-import { useAuth } from '@/components/auth/AuthContext';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const { theme, accentColor } = useAppTheme();
-  const { login } = useAuth();
   const router = useRouter();
   const navigation = useNavigation<any>();
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [showPwd, setShowPwd] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const errors = useMemo(() => {
     const e: Record<string, string> = {};
     const emailOk = /[^@\s]+@[^@\s]+\.[^@\s]+/.test(email);
+    if (!name.trim()) e.name = 'Required';
     if (!emailOk) e.email = 'Invalid email';
     if (password.length < 6) e.password = 'Min 6 characters';
+    if (password !== confirm) e.confirm = 'Passwords do not match';
     return e;
-  }, [email, password]);
+  }, [name, email, password, confirm]);
 
   const canSubmit = Object.keys(errors).length === 0;
+
+  const labelCls = theme === 'dark' ? 'text-slate-300' : 'text-slate-700';
+  const inputBorder = theme === 'dark' ? 'dark:border-slate-700' : 'border-slate-200';
+  const placeholderColor = theme === 'dark' ? '#64748b' : '#94a3b8';
+  const helperErr = 'text-red-500 mt-1 text-xs';
 
   const onSubmit = async () => {
     if (!canSubmit || submitting) return;
     setSubmitting(true);
     try {
-      await login(email, password);
-      router.replace('/navigation/OwnerNavigator');
+      // Proceed to Gym Details step (React Navigation)
+      navigation.navigate('GymDetails');
     } finally {
       setSubmitting(false);
     }
   };
-
-  const labelCls = theme === 'dark' ? 'text-slate-300' : 'text-slate-700';
-  const inputBg = theme === 'dark' ? 'dark:bg-slate-800' : 'bg-white';
-  const inputBorder = theme === 'dark' ? 'dark:border-slate-700' : 'border-slate-200';
-  const helperErr = 'text-red-500 mt-1 text-xs';
-  const placeholderColor = theme === 'dark' ? '#64748b' : '#94a3b8';
-
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
@@ -65,12 +66,21 @@ export default function LoginScreen() {
                 <View style={{ width: 80, height: 80, borderRadius: 24, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 2 }}>
                   <Text style={{ color: accentColor }} className="text-3xl font-extrabold">🏋️</Text>
                 </View>
-                <Text className="mt-3 text-xl font-semibold text-slate-900">Sign In</Text>
-                <Text className="text-slate-600 mt-1">Welcome back! Please sign in to continue.</Text>
+                <Text className="mt-3 text-xl font-semibold text-slate-900">Sign Up</Text>
+                <Text className="text-slate-600 mt-1">Create your account to get started.</Text>
               </View>
 
-              {/* Inputs (match Owner form style) */}
-              <Text className={`${labelCls} text-sm mb-2`}>Email</Text>
+              <Text className={`${labelCls} text-sm mb-2`}>Name</Text>
+              <TextInput
+                value={name}
+                onChangeText={setName}
+                placeholder="Your full name"
+                placeholderTextColor={placeholderColor}
+                className={`border ${inputBorder} rounded-lg px-3 py-3 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 mb-3`}
+              />
+              {errors.name ? <Text className={helperErr}>{errors.name}</Text> : null}
+
+              <Text className={`${labelCls} text-sm mb-2 mt-2`}>Email</Text>
               <TextInput
                 value={email}
                 onChangeText={setEmail}
@@ -87,7 +97,7 @@ export default function LoginScreen() {
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPwd}
-                  placeholder="Your password"
+                  placeholder="Create a password"
                   placeholderTextColor={placeholderColor}
                   style={{ flex: 1, paddingVertical: 6, color: theme === 'dark' ? '#f1f5f9' : '#0f172a' }}
                 />
@@ -97,35 +107,36 @@ export default function LoginScreen() {
               </View>
               {errors.password ? <Text className={helperErr}>{errors.password}</Text> : null}
 
-              {/* Forgot password link aligned right */}
-              <View className="items-end -mt-1 mb-2">
-                <Pressable onPress={() => navigation.navigate('ForgotPassword')}>
-                  <Text style={{ color: accentColor }} className="font-semibold">Forgot Password?</Text>
-                </Pressable>
+              <Text className={`${labelCls} text-sm mb-2 mt-2`}>Confirm Password</Text>
+              <View className={`border ${inputBorder} rounded-lg px-3 py-2 bg-white dark:bg-slate-800 flex-row items-center`}>
+                <TextInput
+                  value={confirm}
+                  onChangeText={setConfirm}
+                  secureTextEntry={!showConfirm}
+                  placeholder="Re-enter password"
+                  placeholderTextColor={placeholderColor}
+                  style={{ flex: 1, paddingVertical: 6, color: theme === 'dark' ? '#f1f5f9' : '#0f172a' }}
+                />
+                <TouchableOpacity onPress={() => setShowConfirm((s) => !s)}>
+                  <Icon name={!showConfirm ? 'eye-off-outline' : 'eye-outline'} size={20} color={accentColor} />
+                </TouchableOpacity>
               </View>
+              {errors.confirm ? <Text className={helperErr}>{errors.confirm}</Text> : null}
 
               {/* Primary button */}
               <Pressable onPress={onSubmit} disabled={!canSubmit || submitting} style={{ backgroundColor: canSubmit ? accentColor : '#94a3b8' }} className="rounded-full mt-1 py-3 items-center">
-                <Text className="text-white font-semibold">{submitting ? 'Signing in...' : 'Sign In'}</Text>
+                <Text className="text-white font-semibold">{submitting ? 'Signing up...' : 'Sign Up'}</Text>
               </Pressable>
 
-              {/* Social buttons */}
+              {/* Social/Phone options */}
               <View className="mt-4 gap-3">
                 <Pressable className="flex-row items-center justify-center bg-white rounded-2xl py-3" style={{ borderWidth: 1, borderColor: '#e5e7eb', shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>
                   <Icon name="google" size={18} color="#DB4437" />
-                  <Text className="ml-2 text-slate-800 font-medium">Continue with Google</Text>
+                  <Text className="ml-2 text-slate-800 font-medium">Sign up with Google</Text>
                 </Pressable>
                 <Pressable className="flex-row items-center justify-center bg-white rounded-2xl py-3" style={{ borderWidth: 1, borderColor: '#e5e7eb', shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>
-                  <Icon name="facebook" size={18} color="#1877F2" />
-                  <Text className="ml-2 text-slate-800 font-medium">Continue with Facebook</Text>
-                </Pressable>
-              </View>
-
-              {/* Footer link to Register */}
-              <View className="flex-row justify-center mt-4">
-                <Text className="text-slate-700">New here? </Text>
-                <Pressable onPress={() => navigation.navigate('Register')}>
-                  <Text style={{ color: accentColor }} className="font-semibold">Create an account</Text>
+                  <Icon name="phone" size={18} color={accentColor} />
+                  <Text className="ml-2 text-slate-800 font-medium">Sign up with Phone</Text>
                 </Pressable>
               </View>
             </View>
