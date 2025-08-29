@@ -15,11 +15,11 @@ import {
   ThemeProvider as AppThemeProvider,
   useAppTheme,
 } from "@/components/theme/ThemeContext";
-import { AuthProvider } from "@/app/context/AuthContext";
 
 import "../global.css";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
+import { AuthProvider } from "./context/AuthContext";
 
 export {
   // Catch any errors thrown by the Layout component.
