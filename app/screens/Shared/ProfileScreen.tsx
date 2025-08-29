@@ -14,17 +14,16 @@ import { useNavigation } from "@react-navigation/native";
 import { useAppTheme } from "@/components/theme/ThemeContext";
 import ScreenWrapper from "@/components/Navigation/ScreenWrapperTopNav";
 import { useRouter } from "expo-router";
-import { logout } from "@/app/slice/authSlice";
-import { useAppDispatch } from "@/app/hooks/hook";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { theme, toggleTheme, accentColor, setAccentColor } = useAppTheme();
   const router = useRouter();
+  const { logout } = useAuth();
   const [fullName, setFullName] = useState("Jane Doe");
   const [email, setEmail] = useState("jane.doe@gym.com");
   const [phone, setPhone] = useState("+91 98765 43210");
-  const dispatch = useAppDispatch();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -351,9 +350,11 @@ export default function ProfileScreen() {
                 setLoggingOut(true);
                 try {
                   console.log('[Logout] onPress');
-                  dispatch(logout());
+                  await logout();
                   console.log('[Logout] token cleared, navigating to root');
                   router.replace('/');
+                } catch (error) {
+                  console.error('[Logout] error:', error);
                 } finally {
                   if (isMounted.current) setLoggingOut(false);
                 }
@@ -364,8 +365,10 @@ export default function ProfileScreen() {
                 console.log('[Logout] onPressOut fallback');
                 setLoggingOut(true);
                 try {
-                  dispatch(logout());
+                  await logout();
                   router.replace('/');
+                } catch (error) {
+                  console.error('[Logout] error:', error);
                 } finally {
                   if (isMounted.current) setLoggingOut(false);
                 }

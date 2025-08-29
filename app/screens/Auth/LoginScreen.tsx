@@ -153,8 +153,8 @@ export default function LoginScreen() {
                 keyboardType="email-address"
                 placeholder="you@example.com"
                 placeholderTextColor={placeholderColor}
-                autoComplete="email"
-                textContentType="emailAddress"
+                autoComplete="username"
+                textContentType="username"
                 autoCapitalize="none"
                 autoCorrect={false}
                 className={`border ${inputBorder} rounded-lg px-3 py-3 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 mb-3`}
@@ -173,7 +173,7 @@ export default function LoginScreen() {
                   secureTextEntry={!showPwd}
                   placeholder="Your password"
                   placeholderTextColor={placeholderColor}
-                  autoComplete="password"
+                  autoComplete="current-password"
                   textContentType="password"
                   autoCapitalize="none"
                   autoCorrect={false}
