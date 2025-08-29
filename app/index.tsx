@@ -1,14 +1,21 @@
 import React, { useEffect } from "react";
 import { useRouter } from "expo-router";
-import { useAuth } from "@/app/context/AuthContext";
+import { getObjectItem } from "@/app/hooks/useLocalStorage";
+
+interface UserDetails {
+  token?: string | null;
+}
 
 export default function Home() {
-  const { token, loading } = useAuth();
   const router = useRouter();
   useEffect(() => {
-    if (loading) return;
-    if (token) router.replace('/navigation/OwnerNavigator');
-    else router.replace('/navigation/AuthNavigator');
-  }, [loading, token]);
+    async function checkToken() {
+      const userDetails: UserDetails = await getObjectItem("userDetails") || {};
+      const token = userDetails?.token;
+      if (token) router.replace('/navigation/OwnerNavigator');
+      else router.replace('/navigation/AuthNavigator');
+    }
+    checkToken();
+  }, []);
   return null;
 }

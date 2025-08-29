@@ -14,12 +14,13 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { ownerRegisterByEmail } from "@/app/slice/authSlice";
 import { useAppDispatch, useAppSelector } from "@/app/hooks/hook";
-import { getAllKeys, getObjectItem, setObjectItem } from "@/app/hooks/useLocalStorage";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function RegisterScreen() {
   const { theme, accentColor } = useAppTheme();
   const navigation = useNavigation<any>();
   const dispatch = useAppDispatch();
+  const { login } = useAuth();
 
   const ownerRegisterByEmailData = useAppSelector(
     (state) => state.authSlc.ownerRegisterByEmailData
@@ -59,26 +60,21 @@ export default function RegisterScreen() {
       const payload = { name, email, password };
       console.log("payload", payload);
 
-      // ✅ Use unwrap() to get response data directly
+      // Use unwrap() to get response data directly
       const response = await dispatch(ownerRegisterByEmail(payload)).unwrap();
 
       console.log("API response", response);
-      const userDetails = {
-        _id: response?.data?.user?._id,
-        fullName: response?.data?.user?.fullName,
+      const tokenData = response?.data?.token;
+      const userData = {
+        id: response?.data?.user?._id,
+        name: response?.data?.user?.fullName,
         email: response?.data?.user?.email,
-        phone: response?.data?.user?.phone,
-        role: response?.data?.user?.role,
-        token: response?.data?.token,
+        role: response?.data?.user?.role || 'owner',
       };
-      console.log("Setting user details in local storage")
-      // Store in local storage
-      await setObjectItem("userDetails", userDetails);
-      console.log("userDetails:", await getObjectItem("userDetails"));
-      console.log(
-        "All keys in local storage: ",
-        await getAllKeys()
-      );
+
+      console.log("Logging in with AuthContext");
+      // Use AuthContext login method
+      await login(tokenData, userData);
 
       console.log("Owner registered successfully");
       navigation.navigate("GymDetails");
