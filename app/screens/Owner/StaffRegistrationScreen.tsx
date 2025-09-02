@@ -1,8 +1,11 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, TextInput, Pressable } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { View, Text, ScrollView, TextInput, Pressable, Alert } from "react-native";
 import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAppTheme } from "@/components/theme/ThemeContext";
 import ScreenWrapper from "@/components/Navigation/ScreenWrapperTopNav";
+import { createGymUser, updateGymUser } from "@/app/services/gymUsers";
+import { listGyms, type Gym } from "@/app/services/gyms";
+import { useRoute, useNavigation } from "@react-navigation/native";
 
 export default function StaffRegistrationScreen() {
   const { theme, accentColor } = useAppTheme();
@@ -11,77 +14,99 @@ export default function StaffRegistrationScreen() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("");
-  const [gym, setGym] = useState("");
-  const [status, setStatus] = useState<"Active" | "Pending" | "Inactive">(
-    "Active"
-  );
+  const [role, setRole] = useState<"Admin" | "Staff">("Staff");
+  const [gymId, setGymId] = useState("");
+  const [gyms, setGyms] = useState<Gym[]>([]);
+  const [gymDropdownOpen, setGymDropdownOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const route = useRoute<any>();
+  const navigation = useNavigation<any>();
 
-  const Chip = ({ label }: { label: "Active" | "Pending" | "Inactive" }) => {
-    const active = status === label;
-    const colors: Record<
-      string,
-      {
-        bgLight: string;
-        bgDark: string;
-        textLight: string;
-        textDark: string;
-        borderLight: string;
-        borderDark: string;
+  const editingId: string | undefined = route.params?.editId;
+  const preset = route.params?.preset as
+    | { name?: string; email?: string; phone?: string; role?: string; status?: string }
+    | undefined;
+
+  useEffect(() => {
+    if (preset) {
+      setName(preset.name || "");
+      setEmail(preset.email || "");
+      setPhone(preset.phone || "");
+      if (preset.role === "Admin" || preset.role === "Staff") setRole(preset.role);
+      if ((preset as any).gymId) {
+        setGymId((preset as any).gymId);
+        setGymDropdownOpen(false);
       }
-    > = {
-      Active: {
-        bgLight: "bg-emerald-50",
-        bgDark: "bg-emerald-900/20",
-        textLight: "text-emerald-700",
-        textDark: "text-emerald-300",
-        borderLight: "border-emerald-200",
-        borderDark: "border-emerald-700",
-      },
-      Pending: {
-        bgLight: "bg-amber-50",
-        bgDark: "bg-amber-900/20",
-        textLight: "text-amber-700",
-        textDark: "text-amber-300",
-        borderLight: "border-amber-200",
-        borderDark: "border-amber-700",
-      },
-      Inactive: {
-        bgLight: "bg-rose-50",
-        bgDark: "bg-rose-900/20",
-        textLight: "text-rose-700",
-        textDark: "text-rose-300",
-        borderLight: "border-rose-200",
-        borderDark: "border-rose-700",
-      },
-    };
-    const c = colors[label];
-    return (
-      <Pressable
-        onPress={() => setStatus(label)}
-        className={`px-3 py-2 rounded-full border ${
-          theme === "dark" ? c.borderDark : c.borderLight
-        } ${
-          active
-            ? theme === "dark"
-              ? c.bgDark
-              : c.bgLight
-            : "bg-white dark:bg-slate-900"
-        }`}
-      >
-        <Text
-          className={`text-xs ${theme === "dark" ? c.textDark : c.textLight}`}
-        >
-          {label}
-        </Text>
-      </Pressable>
-    );
+    }
+  }, [preset]);
+
+  useEffect(() => {
+    // Load gyms for dropdown
+    (async () => {
+      try {
+        const res = await listGyms();
+        setGyms(res || []);
+      } catch (e) {
+        // non-blocking; user can still type gymId manually if needed
+        console.warn('Failed to load gyms list');
+      }
+    })();
+  }, []);
+
+  const roleNumber = useMemo(() => (role === "Admin" ? 0 : 1), [role]);
+
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setPhone("");
+    setRole("Staff");
+    setGymId("");
+    setGymDropdownOpen(false);
+  };
+
+  const onSubmit = async () => {
+    if (!name && !email) {
+      Alert.alert("Validation", "Please enter at least a name or email.");
+      return;
+    }
+    if (!gymId) {
+      Alert.alert("Validation", "Please enter a Gym ID to assign.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      if (editingId) {
+        await updateGymUser(editingId, {
+          gymId,
+          role: roleNumber,
+          userInfo: { name, email, phone },
+        });
+      } else {
+        await createGymUser({
+          gymId,
+          role: roleNumber,
+          userInfo: { name, email, phone },
+        });
+      }
+      Alert.alert("Success", `Staff ${editingId ? "updated" : "created"} successfully.`);
+      resetForm();
+      navigation.goBack();
+    } catch (e: any) {
+      Alert.alert("Error", e?.response?.data?.message || e?.message || "Failed to submit");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <ScreenWrapper title="Add New Staff" theme={theme}>
+    <ScreenWrapper title="Add New Staff" theme={theme} scroll={false}>
       <View className="flex-1 bg-white dark:bg-slate-900">
-        <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 80 }}
+          style={{ backgroundColor: theme === 'dark' ? '#000000' : '#ffffff' }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           {/* Form Card */}
           <View className="px-4 mt-2">
             <View
@@ -129,68 +154,75 @@ export default function StaffRegistrationScreen() {
                 className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-3 text-slate-900 dark:text-slate-100 mb-4"
               />
 
-              {/* Role select placeholder */}
-              <Text className="text-slate-700 dark:text-slate-300 text-sm mb-2">
-                Role
-              </Text>
-              <Pressable className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-3 flex-row items-center justify-between mb-4">
-                <Text
-                  className={`${
-                    role
-                      ? "text-slate-900 dark:text-slate-100"
-                      : "text-slate-400 dark:text-slate-500"
-                  }`}
-                >
-                  {role || "Select a role"}
-                </Text>
-                <IconMC
-                  name="chevron-down"
-                  size={18}
-                  color={theme === "dark" ? "#9ca3af" : "#94a3b8"}
-                />
-              </Pressable>
-
-              {/* Assign Gym placeholder */}
-              <Text className="text-slate-700 dark:text-slate-300 text-sm mb-2">
-                Assign Gym/Branch
-              </Text>
-              <Pressable className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-3 flex-row items-center justify-between mb-4">
-                <Text
-                  className={`${
-                    gym
-                      ? "text-slate-900 dark:text-slate-100"
-                      : "text-slate-400 dark:text-slate-500"
-                  }`}
-                >
-                  {gym || "Select a gym"}
-                </Text>
-                <IconMC
-                  name="chevron-down"
-                  size={18}
-                  color={theme === "dark" ? "#9ca3af" : "#94a3b8"}
-                />
-              </Pressable>
-
-              {/* Employment Status Chips */}
-              <Text className="text-slate-700 dark:text-slate-300 text-sm mb-2">
-                Employment Status
-              </Text>
-              <View className="flex-row gap-2 mb-2">
-                <Chip label="Active" />
-                <Chip label="Pending" />
-                <Chip label="Inactive" />
+              {/* Role chips */}
+              <Text className="text-slate-700 dark:text-slate-300 text-sm mb-2">Role</Text>
+              <View className="flex-row gap-2 mb-4">
+                {(["Admin", "Staff"] as const).map(r => (
+                  <Pressable
+                    key={r}
+                    onPress={() => setRole(r)}
+                    className={`px-3 py-2 rounded-full border ${
+                      role === r
+                        ? theme === "dark" ? "bg-slate-700 border-slate-600" : "bg-slate-100 border-slate-300"
+                        : theme === "dark" ? "border-slate-700" : "border-slate-200"
+                    }`}
+                  >
+                    <Text className={`text-xs ${theme === "dark" ? "text-slate-200" : "text-slate-700"}`}>{r}</Text>
+                  </Pressable>
+                ))}
               </View>
+
+              {/* Assign Gym dropdown */}
+              <Text className="text-slate-700 dark:text-slate-300 text-sm mb-2">Assign Gym</Text>
+              <Pressable
+                onPress={() => setGymDropdownOpen(o => !o)}
+                className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-3 flex-row items-center justify-between"
+              >
+                <Text className={`${gymId ? 'text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500'}`}>
+                  {gymId ? gyms.find(g => g._id === gymId)?.name || gymId : 'Select a gym'}
+                </Text>
+                <IconMC name={gymDropdownOpen ? 'chevron-up' : 'chevron-down'} size={18} color={theme === 'dark' ? '#9ca3af' : '#94a3b8'} />
+              </Pressable>
+              {gymDropdownOpen && (
+                <View className="mt-2 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                  <ScrollView style={{ maxHeight: 240 }}>
+                    {gyms.map(g => (
+                      <Pressable
+                        key={g._id}
+                        onPress={() => { setGymId(g._id); setGymDropdownOpen(false); }}
+                        className={`px-3 py-3 ${gymId === g._id ? (theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100') : ''}`}
+                      >
+                        <Text className="text-slate-900 dark:text-slate-100">{g.name}</Text>
+                      </Pressable>
+                    ))}
+                    {gyms.length === 0 && (
+                      <View className="px-3 py-3">
+                        <Text className="text-slate-500 dark:text-slate-400">No gyms found</Text>
+                      </View>
+                    )}
+                  </ScrollView>
+                </View>
+              )}
+
+              {/* Employment Status removed as requested */}
 
               <View className="mt-2 flex-row gap-3">
                 <Pressable
+                  onPress={onSubmit}
+                  disabled={submitting}
                   className="flex-1 rounded-xl py-3 items-center justify-center"
-                  style={{ backgroundColor: accent }}
+                  style={{ backgroundColor: accent, opacity: submitting ? 0.7 : 1 }}
                 >
-                  <Text className="text-white font-semibold">
-                    Register Staff
-                  </Text>
+                  <Text className="text-white font-semibold">{editingId ? "Update Staff" : "Register Staff"}</Text>
                 </Pressable>
-                <Pressable className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 items-center justify-center">
+                <Pressable
+                  onPress={() => {
+                    resetForm();
+                    navigation.goBack();
+                  }}
+                  className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 items-center justify-center"
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
                   <Text className="text-slate-700 dark:text-slate-300 font-semibold">
                     Cancel
                   </Text>
