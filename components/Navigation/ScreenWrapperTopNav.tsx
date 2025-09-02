@@ -9,14 +9,15 @@ type ScreenWrapperProps = {
   title: string;
   theme?: "light" | "dark"; // optional; defaults to ThemeContext
   children: React.ReactNode;
+  scroll?: boolean; // default true; when false, do not wrap in ScrollView (for FlatList/SectionList screens)
 };
 
-export default function ScreenWrapper({ title, theme, children }: ScreenWrapperProps) {
+export default function ScreenWrapper({ title, theme, children, scroll = true }: ScreenWrapperProps) {
   const scrollY = useSharedValue(0);
   const navigation = useNavigation<any>();
   const { theme: ctxTheme } = useAppTheme();
   const currentTheme = theme || ctxTheme;
-  const bg = currentTheme === 'dark' ? '#d1d5db' : '#ffffff';
+  const bg = currentTheme === 'dark' ? '#000000' : '#ffffff';
 
   const scrollHandler = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
@@ -30,15 +31,21 @@ export default function ScreenWrapper({ title, theme, children }: ScreenWrapperP
         theme={currentTheme}
         onNotificationPress={() => navigation.navigate('Notifications')}
       />
-      <Animated.ScrollView
-        contentContainerStyle={{ paddingTop: 56 + 16, paddingBottom: 80, backgroundColor: currentTheme === "dark" ? "black" : "#ffffff" }}
-        style={{ flex: 1, backgroundColor: 'black' }}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        keyboardShouldPersistTaps="handled"
-      >
-        {children}
-      </Animated.ScrollView>
+      {scroll ? (
+        <Animated.ScrollView
+          contentContainerStyle={{ paddingTop: 56 + 16, paddingBottom: 80, backgroundColor: currentTheme === "dark" ? "#000000" : "#ffffff" }}
+          style={{ flex: 1, backgroundColor: currentTheme === "dark" ? "#000000" : "#ffffff" }}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          keyboardShouldPersistTaps="handled"
+        >
+          {children}
+        </Animated.ScrollView>
+      ) : (
+        <View style={{ flex: 1, paddingTop: 56 + 16, paddingBottom: 80, backgroundColor: currentTheme === "dark" ? "#000000" : "#ffffff" }}>
+          {children}
+        </View>
+      )}
     </View>
   );
 }

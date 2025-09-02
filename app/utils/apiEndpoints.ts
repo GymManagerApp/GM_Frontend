@@ -8,5 +8,13 @@ export const apiEndpoints = {
   },
   gym: {
     addGym: "/gyms",
-  }
+  },
+  gymUsers: {
+    list: "/gym-users",
+    byId: (id: string) => `/gym-users/${id}`,
+    create: "/gym-users",
+    update: (id: string) => `/gym-users/${id}`,
+    delete: (id: string) => `/gym-users/${id}`,
+    updateStatus: "/gym-users/status",
+  },
 };
