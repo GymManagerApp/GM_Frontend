@@ -124,10 +124,22 @@ export default function DetailsDrawer() {
           {type === 'plan' && (
             <View>
               <Section label="Name" value={item?.name} />
-              <Section label="Description" value={item?.desc} />
-              <Section label="Price" value={item?.price} />
-              <Section label="Duration (months)" value={item?.durationMonths} />
-              {item?.popular != null && <Section label="Popular" value={item?.popular ? 'Yes' : 'No'} />}
+              <Section label="Description" value={item?.description} />
+              <Section label="Price (INR)" value={
+                (() => {
+                  const n = Number(item?.price ?? 0);
+                  try {
+                    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(n);
+                  } catch {
+                    return `₹${n.toFixed(2)}`;
+                  }
+                })()
+              } />
+              <Section label="Duration (months)" value={item?.durationInMonths ?? item?.duration} />
+              {item?.bonus != null && <Section label="Bonus (months)" value={item?.bonus} />}
+              {Array.isArray(item?.benefits) && item.benefits.length > 0 && (
+                <Section label="Key Features" value={item.benefits.join(', ')} />
+              )}
             </View>
           )}
 

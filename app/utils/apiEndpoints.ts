@@ -17,4 +17,11 @@ export const apiEndpoints = {
     delete: (id: string) => `/gym-users/${id}`,
     updateStatus: "/gym-users/status",
   },
+  membershipPlans: {
+    list: "/membership-plans",
+    byId: (id: string) => `/membership-plans/${id}`,
+    create: "/membership-plans",
+    update: (id: string) => `/membership-plans/${id}`,
+    delete: (id: string) => `/membership-plans/${id}`,
+  },
 };
