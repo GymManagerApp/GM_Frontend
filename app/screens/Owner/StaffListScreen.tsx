@@ -4,7 +4,15 @@ import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useAppTheme } from "@/components/theme/ThemeContext";
 import ScreenWrapper from "@/components/Navigation/ScreenWrapperTopNav";
-import { listGymUsers, deleteGymUser, getGymUserById, type GymUser } from "@/app/services/gymUsers";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/app/store/store";
+import {
+  fetchStaff,
+  fetchStaffById,
+  deleteStaff,
+  selectStaff,
+  selectStaffLoading,
+} from "@/app/slice/staffSlice";
 
 type Staff = {
   id: string;
@@ -21,11 +29,12 @@ export default function StaffListScreen() {
   const accent = accentColor || (theme === "dark" ? "#4EA1FF" : "#1d74f5");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [staff, setStaff] = useState<Staff[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const items = useSelector(selectStaff);
+  const loading = useSelector(selectStaffLoading);
   const isFocused = useIsFocused();
 
-  const mapGymUserToStaff = (gu: GymUser): Staff => ({
+  const mapGymUserToStaff = (gu: any): Staff => ({
     id: gu._id,
     name: gu.userInfo?.name || "",
     email: gu.userInfo?.email || "",
@@ -36,20 +45,16 @@ export default function StaffListScreen() {
 
   const load = useCallback(async () => {
     try {
-      setLoading(true);
-      const list = await listGymUsers();
-      setStaff((list || []).map(mapGymUserToStaff));
+      await dispatch(fetchStaff()).unwrap();
     } catch (e: any) {
       console.error("Failed to load staff:", e?.message || e);
-      Alert.alert("Error", e?.response?.data?.message || e?.message || "Failed to load staff");
-    } finally {
-      setLoading(false);
+      Alert.alert("Error", e?.message || "Failed to load staff");
     }
   }, []);
 
   const handleViewDetails = useCallback(async (id: string) => {
     try {
-      const gu = await getGymUserById(id);
+      const gu = await dispatch(fetchStaffById(id)).unwrap();
       const item = mapGymUserToStaff(gu);
       navigation.navigate("DetailsDrawer", {
         type: "member",
@@ -57,17 +62,17 @@ export default function StaffListScreen() {
         title: "Staff Details",
       });
     } catch (e: any) {
-      Alert.alert("Error", e?.response?.data?.message || e?.message || "Failed to load staff details");
+      Alert.alert("Error", e?.message || "Failed to load staff details");
     }
   }, [navigation]);
 
   const handleEdit = useCallback(async (id: string) => {
     try {
-      const gu = await getGymUserById(id);
+      const gu = await dispatch(fetchStaffById(id)).unwrap();
       const s = mapGymUserToStaff(gu);
       navigation.navigate("StaffRegistrationScreen", { editId: id, preset: { ...s, gymId: gu.gymId } });
     } catch (e: any) {
-      Alert.alert("Error", e?.response?.data?.message || e?.message || "Failed to load staff for edit");
+      Alert.alert("Error", e?.message || "Failed to load staff for edit");
     }
   }, [navigation]);
 
@@ -77,14 +82,14 @@ export default function StaffListScreen() {
 
   const filtered = useMemo(
     () =>
-      staff.filter(
+      (items || []).map(mapGymUserToStaff).filter(
         (s) =>
           s.name.toLowerCase().includes(query.toLowerCase()) ||
           s.email.toLowerCase().includes(query.toLowerCase()) ||
           s.phone.toLowerCase().includes(query.toLowerCase()) ||
           s.role.toLowerCase().includes(query.toLowerCase())
       ),
-    [query, staff]
+    [query, items]
   );
 
   const badgeStyle = (s?: Staff["status"]) => {
@@ -247,10 +252,9 @@ export default function StaffListScreen() {
                           style: "destructive",
                           onPress: async () => {
                             try {
-                              await deleteGymUser(s.id);
-                              await load();
+                              await dispatch(deleteStaff(s.id)).unwrap();
                             } catch (e: any) {
-                              Alert.alert("Error", e?.response?.data?.message || e?.message || "Failed to delete staff");
+                              Alert.alert("Error", e?.message || "Failed to delete staff");
                             }
                           },
                         },

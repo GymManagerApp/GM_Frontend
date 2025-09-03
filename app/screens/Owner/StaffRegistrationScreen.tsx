@@ -3,7 +3,10 @@ import { View, Text, ScrollView, TextInput, Pressable, Alert } from "react-nativ
 import IconMC from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAppTheme } from "@/components/theme/ThemeContext";
 import ScreenWrapper from "@/components/Navigation/ScreenWrapperTopNav";
-import { createGymUser, updateGymUser } from "@/app/services/gymUsers";
+// Using Redux slice thunks for CRUD
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "@/app/store/store";
+import { createStaff, updateStaff } from "@/app/slice/staffSlice";
 import { listGyms, type Gym } from "@/app/services/gyms";
 import { useRoute, useNavigation } from "@react-navigation/native";
 
@@ -21,6 +24,7 @@ export default function StaffRegistrationScreen() {
   const [submitting, setSubmitting] = useState(false);
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
+  const dispatch = useDispatch<AppDispatch>();
 
   const editingId: string | undefined = route.params?.editId;
   const preset = route.params?.preset as
@@ -76,17 +80,13 @@ export default function StaffRegistrationScreen() {
     setSubmitting(true);
     try {
       if (editingId) {
-        await updateGymUser(editingId, {
-          gymId,
-          role: roleNumber,
-          userInfo: { name, email, phone },
-        });
+        await dispatch(
+          updateStaff({ id: editingId, data: { gymId, role: roleNumber, userInfo: { name, email, phone } } })
+        ).unwrap();
       } else {
-        await createGymUser({
-          gymId,
-          role: roleNumber,
-          userInfo: { name, email, phone },
-        });
+        await dispatch(
+          createStaff({ gymId, role: roleNumber, userInfo: { name, email, phone } })
+        ).unwrap();
       }
       Alert.alert("Success", `Staff ${editingId ? "updated" : "created"} successfully.`);
       resetForm();
